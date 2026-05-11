@@ -1,0 +1,117 @@
+// =============================================
+// 广东精酿啤酒一站式供应链 — 全局样式变量
+// =============================================
+
+// 主色调
+$color-primary: #F5A623;        // 琥珀金（主按钮、选中状态、高亮）
+$color-primary-dark: #3E1C00;   // 深棕（导航栏、标题）
+$color-primary-light: #FFF8F0;  // 乳白（卡片背景）
+$color-danger: #E84C3D;         // 橙红（热销标签、警告、紧急）
+$color-success: #2DB884;        // 绿色（新品标签、成功状态）
+$color-warning: #FF9900;        // 橙色（待处理状态）
+$color-info: #409EFF;           // 蓝色（信息提示）
+
+// 背景色
+$color-bg: #F7F3EE;             // 米白（页面背景）
+$color-bg-card: #FFFFFF;        // 白色（卡片背景）
+$color-bg-gray: #F5F5F5;        // 浅灰（禁用背景）
+
+// 边框色
+$color-border: #EEEEEE;
+$color-border-light: #F5F5F5;
+
+// 文字色
+$color-text-primary: #1A1A1A;
+$color-text-secondary: #666666;
+$color-text-tertiary: #999999;
+$color-text-placeholder: #BBBBBB;
+$color-text-white: #FFFFFF;
+$color-text-link: #F5A623;
+
+// 间距（rpx）
+$spacing-xs: 8rpx;
+$spacing-sm: 16rpx;
+$spacing-md: 24rpx;
+$spacing-lg: 32rpx;
+$spacing-xl: 48rpx;
+$spacing-xxl: 64rpx;
+
+// 圆角
+$radius-sm: 8rpx;
+$radius-md: 12rpx;
+$radius-lg: 24rpx;
+$radius-xl: 32rpx;
+$radius-full: 9999rpx;
+
+// 按钮
+$btn-height: 88rpx;             // 44px × 2（rpx = 0.5px on 750px base）
+$btn-height-sm: 64rpx;
+$btn-radius: $radius-sm;
+
+// 阴影
+$shadow-sm: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
+$shadow-md: 0 4rpx 16rpx rgba(0, 0, 0, 0.10);
+$shadow-lg: 0 8rpx 32rpx rgba(0, 0, 0, 0.14);
+
+// 字体大小
+$font-xs: 20rpx;
+$font-sm: 24rpx;
+$font-base: 28rpx;
+$font-md: 30rpx;
+$font-lg: 32rpx;
+$font-xl: 36rpx;
+$font-xxl: 40rpx;
+$font-title: 44rpx;
+
+// 行高
+$line-height-tight: 1.3;
+$line-height-base: 1.5;
+$line-height-loose: 1.8;
+
+// 导航栏高度
+$nav-height: 88rpx;
+
+// TabBar 高度（含安全区）
+$tabbar-height: 100rpx;
+
+// 通用 mixin
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin flex-start {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+@mixin text-ellipsis {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+@mixin text-ellipsis-2 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+@mixin card {
+  background: $color-bg-card;
+  border-radius: $radius-md;
+  box-shadow: $shadow-sm;
+}
+
+@mixin safe-area-bottom {
+  padding-bottom: calc(#{$spacing-md} + env(safe-area-inset-bottom));
+}

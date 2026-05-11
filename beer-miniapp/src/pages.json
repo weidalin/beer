@@ -1,0 +1,185 @@
+{
+  "pages": [
+    {
+      "path": "pages/index/index",
+      "style": {
+        "navigationBarTitleText": "广东精酿啤酒一站式供应链",
+        "navigationBarBackgroundColor": "#3E1C00",
+        "navigationBarTextStyle": "white",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/products/list",
+      "style": {
+        "navigationBarTitleText": "产品中心",
+        "navigationBarBackgroundColor": "#3E1C00",
+        "navigationBarTextStyle": "white"
+      }
+    },
+    {
+      "path": "pages/products/detail",
+      "style": {
+        "navigationBarTitleText": "产品详情",
+        "navigationBarBackgroundColor": "#3E1C00",
+        "navigationBarTextStyle": "white"
+      }
+    },
+    {
+      "path": "pages/plans/index",
+      "style": {
+        "navigationBarTitleText": "合作方案",
+        "navigationBarBackgroundColor": "#3E1C00",
+        "navigationBarTextStyle": "white"
+      }
+    },
+    {
+      "path": "pages/booking/index",
+      "style": {
+        "navigationBarTitleText": "在线预约",
+        "navigationBarBackgroundColor": "#3E1C00",
+        "navigationBarTextStyle": "white"
+      }
+    },
+    {
+      "path": "pages/repair/form",
+      "style": {
+        "navigationBarTitleText": "设备报修",
+        "navigationBarBackgroundColor": "#3E1C00",
+        "navigationBarTextStyle": "white"
+      }
+    },
+    {
+      "path": "pages/repair/status",
+      "style": {
+        "navigationBarTitleText": "工单进度",
+        "navigationBarBackgroundColor": "#3E1C00",
+        "navigationBarTextStyle": "white"
+      }
+    },
+    {
+      "path": "pages/delivery/map",
+      "style": {
+        "navigationBarTitleText": "配送区域",
+        "navigationBarBackgroundColor": "#3E1C00",
+        "navigationBarTextStyle": "white"
+      }
+    },
+    {
+      "path": "pages/about/index",
+      "style": {
+        "navigationBarTitleText": "关于我们",
+        "navigationBarBackgroundColor": "#3E1C00",
+        "navigationBarTextStyle": "white"
+      }
+    },
+    {
+      "path": "pages/faq/index",
+      "style": {
+        "navigationBarTitleText": "常见问题",
+        "navigationBarBackgroundColor": "#3E1C00",
+        "navigationBarTextStyle": "white"
+      }
+    },
+    {
+      "path": "pages/profile/index",
+      "style": {
+        "navigationBarTitleText": "我的",
+        "navigationBarBackgroundColor": "#3E1C00",
+        "navigationBarTextStyle": "white"
+      }
+    },
+    {
+      "path": "pages/admin/index/index",
+      "style": {
+        "navigationBarTitleText": "管理后台",
+        "navigationBarBackgroundColor": "#3E1C00",
+        "navigationBarTextStyle": "white"
+      }
+    },
+    {
+      "path": "pages/admin/products/list",
+      "style": {
+        "navigationBarTitleText": "产品管理",
+        "navigationBarBackgroundColor": "#3E1C00",
+        "navigationBarTextStyle": "white"
+      }
+    },
+    {
+      "path": "pages/admin/products/edit",
+      "style": {
+        "navigationBarTitleText": "编辑产品",
+        "navigationBarBackgroundColor": "#3E1C00",
+        "navigationBarTextStyle": "white"
+      }
+    },
+    {
+      "path": "pages/admin/customers/list",
+      "style": {
+        "navigationBarTitleText": "客户管理",
+        "navigationBarBackgroundColor": "#3E1C00",
+        "navigationBarTextStyle": "white"
+      }
+    },
+    {
+      "path": "pages/admin/customers/detail",
+      "style": {
+        "navigationBarTitleText": "客户详情",
+        "navigationBarBackgroundColor": "#3E1C00",
+        "navigationBarTextStyle": "white"
+      }
+    },
+    {
+      "path": "pages/admin/orders/list",
+      "style": {
+        "navigationBarTitleText": "工单管理",
+        "navigationBarBackgroundColor": "#3E1C00",
+        "navigationBarTextStyle": "white"
+      }
+    }
+  ],
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#F5A623",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "iconPath": "static/icons/home.png",
+        "selectedIconPath": "static/icons/home-active.png",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/products/list",
+        "iconPath": "static/icons/product.png",
+        "selectedIconPath": "static/icons/product-active.png",
+        "text": "产品"
+      },
+      {
+        "pagePath": "pages/plans/index",
+        "iconPath": "static/icons/plan.png",
+        "selectedIconPath": "static/icons/plan-active.png",
+        "text": "方案"
+      },
+      {
+        "pagePath": "pages/booking/index",
+        "iconPath": "static/icons/booking.png",
+        "selectedIconPath": "static/icons/booking-active.png",
+        "text": "预约"
+      },
+      {
+        "pagePath": "pages/profile/index",
+        "iconPath": "static/icons/profile.png",
+        "selectedIconPath": "static/icons/profile-active.png",
+        "text": "我的"
+      }
+    ]
+  },
+  "globalStyle": {
+    "navigationBarTextStyle": "white",
+    "navigationBarTitleText": "广东精酿啤酒一站式供应链",
+    "navigationBarBackgroundColor": "#3E1C00",
+    "backgroundColor": "#F7F3EE"
+  }
+}
