@@ -1,3 +1,4 @@
+import './fetchPolyfill'
 import './urlPolyfill'
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import { createDisconnectedSupabaseClient } from './supabaseStub'
