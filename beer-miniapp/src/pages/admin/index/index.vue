@@ -101,12 +101,16 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
 import StatusBadge from '../../../components/StatusBadge/index.vue'
 import { useUserStore } from '../../../stores/user'
 import { useCustomers } from '../../../composables/useCustomers'
 import { useRepairOrders } from '../../../composables/useRepairOrders'
+import { requireAdmin } from '../../../utils/adminGuard'
 import { formatBizType, formatDeviceType, formatRelativeTime } from '../../../utils/format'
 import type { Customer, RepairOrder } from '../../../types/database'
+
+onLoad(() => { requireAdmin() })
 
 const userStore = useUserStore()
 const isAdmin = userStore.isAdmin

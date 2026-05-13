@@ -116,9 +116,19 @@ async function doLogin() {
     await wxLogin()
     uni.hideLoading()
     uni.showToast({ title: '登录成功', icon: 'success' })
-  } catch {
+  } catch (err: unknown) {
     uni.hideLoading()
-    uni.showToast({ title: '登录失败，请重试', icon: 'none' })
+    const msg = err instanceof Error ? err.message : ''
+    if (msg === 'H5_NO_WECHAT') {
+      uni.showModal({
+        title: '提示',
+        content: '请在微信中打开小程序以使用登录功能',
+        showCancel: false
+      })
+    } else {
+      uni.showToast({ title: '登录失败，请重试', icon: 'none', duration: 2000 })
+      console.error('[Login]', msg)
+    }
   }
 }
 

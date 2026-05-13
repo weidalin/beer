@@ -181,5 +181,11 @@
     "navigationBarTitleText": "广东精酿啤酒一站式供应链",
     "navigationBarBackgroundColor": "#3E1C00",
     "backgroundColor": "#F7F3EE"
+  },
+  "easycom": {
+    "autoscan": true,
+    "custom": {
+      "^uni-(.*)": "@dcloudio/uni-ui/lib/uni-$1/uni-$1.vue"
+    }
   }
 }

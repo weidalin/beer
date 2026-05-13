@@ -96,6 +96,7 @@ import { ref } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import StatusBadge from '../../../components/StatusBadge/index.vue'
 import { useCustomers } from '../../../composables/useCustomers'
+import { requireAdmin } from '../../../utils/adminGuard'
 import {
   formatBizType,
   formatVolume,
@@ -120,6 +121,7 @@ const statusOptions = [
 ]
 
 onLoad(async (options) => {
+  if (!requireAdmin()) return
   if (!options?.id) {
     loading.value = false
     return

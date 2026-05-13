@@ -134,11 +134,14 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { onShow } from '@dcloudio/uni-app'
+import { onShow, onLoad } from '@dcloudio/uni-app'
 import StatusBadge from '../../../components/StatusBadge/index.vue'
 import { useRepairOrders } from '../../../composables/useRepairOrders'
+import { requireAdmin } from '../../../utils/adminGuard'
 import { formatDeviceType, formatRelativeTime } from '../../../utils/format'
 import type { RepairOrder } from '../../../types/database'
+
+onLoad(() => { requireAdmin() })
 
 const { fetchAllRepairOrders, updateOrderStatus } = useRepairOrders()
 

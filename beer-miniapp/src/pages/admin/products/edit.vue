@@ -134,10 +134,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import ImageUploader from '../../../components/ImageUploader/index.vue'
 import { useProducts } from '../../../composables/useProducts'
+import { requireAdmin } from '../../../utils/adminGuard'
 import type { Product } from '../../../types/database'
 
 const { fetchProductDetail, createProduct, updateProduct } = useProducts()
@@ -196,6 +197,7 @@ function toggleTag(tag: string) {
 }
 
 onLoad(async (options) => {
+  if (!requireAdmin()) return
   if (options?.id) {
     productId.value = options.id
     const product = await fetchProductDetail(options.id)

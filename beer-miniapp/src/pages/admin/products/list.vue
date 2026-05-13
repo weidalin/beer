@@ -72,10 +72,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { onShow } from '@dcloudio/uni-app'
+import { ref } from 'vue'
+import { onShow, onLoad } from '@dcloudio/uni-app'
 import { useProducts } from '../../../composables/useProducts'
+import { requireAdmin } from '../../../utils/adminGuard'
 import type { Product } from '../../../types/database'
+
+onLoad(() => { requireAdmin() })
 
 const { fetchAllProducts, toggleProductActive } = useProducts()
 

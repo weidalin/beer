@@ -12,10 +12,13 @@
           <text class="form-label">您的姓名 <text class="required">*</text></text>
           <input
             class="form-input"
+            :class="{ 'form-input--error': errors.name }"
             v-model="form.name"
             placeholder="请输入您的姓名"
             placeholder-class="form-placeholder"
+            @blur="validateField('name')"
           />
+          <text v-if="errors.name" class="field-error">{{ errors.name }}</text>
         </view>
 
         <!-- 联系电话 -->
@@ -23,12 +26,15 @@
           <text class="form-label">联系电话 <text class="required">*</text></text>
           <input
             class="form-input"
+            :class="{ 'form-input--error': errors.phone }"
             v-model="form.phone"
             type="number"
             maxlength="11"
             placeholder="请输入手机号"
             placeholder-class="form-placeholder"
+            @blur="validateField('phone')"
           />
+          <text v-if="errors.phone" class="field-error">{{ errors.phone }}</text>
         </view>
 
         <!-- 档口地址 -->
@@ -37,15 +43,18 @@
           <view class="address-row">
             <input
               class="form-input"
+              :class="{ 'form-input--error': errors.address }"
               style="flex: 1;"
               v-model="form.address"
               placeholder="详细地址（可点击右侧定位自动填写）"
               placeholder-class="form-placeholder"
+              @blur="validateField('address')"
             />
             <view class="locate-btn" @tap="getLocation">
               <text class="locate-icon">📍</text>
             </view>
           </view>
+          <text v-if="errors.address" class="field-error">{{ errors.address }}</text>
         </view>
 
         <!-- 营业类型 -->
@@ -136,7 +145,7 @@
         </view>
 
         <!-- 备注 -->
-        <view class="form-item">
+        <view class="form-item" style="border-bottom: none;">
           <text class="form-label">备注</text>
           <textarea
             class="form-textarea"
@@ -171,11 +180,9 @@
 import { ref, reactive } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import { useCustomers } from '../../composables/useCustomers'
-import { useUserStore } from '../../stores/user'
 import type { BookingForm } from '../../types/api'
 
 const { createCustomer } = useCustomers()
-const userStore = useUserStore()
 
 const submitting = ref(false)
 
@@ -192,31 +199,76 @@ const form = reactive<Partial<BookingForm>>({
   notes: ''
 })
 
+const errors = reactive<Record<string, string>>({
+  name: '',
+  phone: '',
+  address: ''
+})
+
 onLoad((options) => {
   if (options?.plan) {
     form.interested_plan = options.plan as BookingForm['interested_plan']
   }
 })
 
-const bizTypeOptions = [
+const bizTypeOptions: { label: string; value: NonNullable<BookingForm['biz_type']> }[] = [
   { label: '宵夜档', value: 'night_stall' },
   { label: '大排档', value: 'open_restaurant' },
   { label: '夜市摊', value: 'market' },
   { label: '其他', value: 'other' }
 ]
 
-const volumeOptions = [
+const volumeOptions: { label: string; value: NonNullable<BookingForm['daily_volume']> }[] = [
   { label: '50桶以下', value: '<50' },
   { label: '50-100桶', value: '50-100' },
   { label: '100桶以上', value: '>100' }
 ]
 
-const planOptions = [
+const planOptions: { label: string; value: NonNullable<BookingForm['interested_plan']> }[] = [
   { label: '基础版', value: 'basic' },
   { label: '标准版', value: 'standard' },
   { label: '旗舰版', value: 'premium' },
   { label: '还没想好', value: 'undecided' }
 ]
+
+function validateField(field: string): boolean {
+  if (field === 'name') {
+    if (!form.name?.trim()) {
+      errors.name = '请填写您的姓名'
+      return false
+    }
+    errors.name = ''
+    return true
+  }
+  if (field === 'phone') {
+    if (!form.phone?.trim()) {
+      errors.phone = '请填写联系电话'
+      return false
+    }
+    if (!/^1[3-9]\d{9}$/.test(form.phone)) {
+      errors.phone = '请填写正确的11位手机号'
+      return false
+    }
+    errors.phone = ''
+    return true
+  }
+  if (field === 'address') {
+    if (!form.address?.trim()) {
+      errors.address = '请填写档口地址'
+      return false
+    }
+    errors.address = ''
+    return true
+  }
+  return true
+}
+
+function validateAll(): boolean {
+  const nameOk = validateField('name')
+  const phoneOk = validateField('phone')
+  const addressOk = validateField('address')
+  return nameOk && phoneOk && addressOk
+}
 
 function getLocation() {
   uni.showLoading({ title: '定位中...' })
@@ -224,8 +276,8 @@ function getLocation() {
     type: 'gcj02',
     success: (res) => {
       form.location = { latitude: res.latitude, longitude: res.longitude }
-      // 逆地理编码获取地址（需腾讯地图API）
       form.address = `纬度:${res.latitude.toFixed(4)}, 经度:${res.longitude.toFixed(4)}`
+      if (errors.address) errors.address = ''
       uni.hideLoading()
       uni.showToast({ title: '定位成功', icon: 'success' })
     },
@@ -236,46 +288,21 @@ function getLocation() {
   })
 }
 
-function validate(): string | null {
-  if (!form.name?.trim()) return '请填写姓名'
-  if (!form.phone?.trim()) return '请填写联系电话'
-  if (!/^1[3-9]\d{9}$/.test(form.phone)) return '请填写正确的手机号'
-  if (!form.address?.trim()) return '请填写档口地址'
-  return null
-}
-
 async function submit() {
-  const err = validate()
-  if (err) {
-    uni.showToast({ title: err, icon: 'none' })
-    return
-  }
-
-  if (!userStore.isLoggedIn) {
-    uni.showModal({
-      title: '提示',
-      content: '提交预约需要先登录，是否立即登录？',
-      success: (res) => {
-        if (res.confirm) {
-          uni.navigateTo({ url: '/pages/profile/index' })
-        }
-      }
-    })
-    return
-  }
+  if (!validateAll()) return
 
   submitting.value = true
   try {
     await createCustomer(form as BookingForm)
-    uni.showModal({
-      title: '提交成功！',
-      content: '我们已收到您的预约申请，将在1个工作日内与您联系。',
-      showCancel: false,
-      success: () => {
-        uni.navigateBack()
-      }
+    uni.showToast({
+      title: '提交成功，我们将尽快与您联系',
+      icon: 'success',
+      duration: 2500
     })
-  } catch (e) {
+    setTimeout(() => {
+      uni.navigateBack()
+    }, 2500)
+  } catch {
     uni.showToast({ title: '提交失败，请重试', icon: 'none' })
   } finally {
     submitting.value = false
@@ -341,10 +368,21 @@ async function submit() {
     border-bottom: 1rpx solid $color-border;
     padding-bottom: $spacing-xs;
     width: 100%;
+
+    &--error {
+      border-bottom-color: $color-danger;
+    }
   }
 
   .form-placeholder {
     color: $color-text-placeholder;
+  }
+
+  .field-error {
+    display: block;
+    font-size: $font-xs;
+    color: $color-danger;
+    margin-top: 6rpx;
   }
 
   .address-row {

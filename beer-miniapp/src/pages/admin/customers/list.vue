@@ -64,11 +64,14 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { onShow } from '@dcloudio/uni-app'
+import { onShow, onLoad } from '@dcloudio/uni-app'
 import StatusBadge from '../../../components/StatusBadge/index.vue'
 import { useCustomers } from '../../../composables/useCustomers'
+import { requireAdmin } from '../../../utils/adminGuard'
 import { formatBizType, formatVolume, formatPlan, formatRelativeTime } from '../../../utils/format'
 import type { Customer } from '../../../types/database'
+
+onLoad(() => { requireAdmin() })
 
 const { fetchAllCustomers } = useCustomers()
 

@@ -39,21 +39,11 @@
 <script setup lang="ts">
 import { reactive } from 'vue'
 import { useAppStore } from '../../stores/app'
+import { FAQ_DATA } from '../../constants/faqData'
 
 const appStore = useAppStore()
 
-const faqs = reactive([
-  { q: '如何开始合作？', a: '填写在线预约申请，我们会在1个工作日内联系您，了解您的需求后安排专属业务对接。', open: false },
-  { q: '押金是多少？', a: '我们所有合作方案均免押金起步，签约后即可开始合作，无需支付押金。', open: false },
-  { q: '配送范围覆盖哪些地区？', a: '珠三角核心区域（广州、深圳、佛山、东莞、中山、珠海等）提供当日达配送。其他省市可走物流，起订量另议。', open: false },
-  { q: '桶装鲜啤的规格有哪些？', a: '提供30L、50L等多种规格，具体可咨询业务了解适合您档口的规格。', open: false },
-  { q: '打酒机坏了怎么处理？', a: '拨打我们的服务电话或在小程序提交报修工单，标准版48小时、旗舰版4小时上门响应。基础版72小时内处理。', open: false },
-  { q: '啤酒车可以只租不买吗？', a: '可以！啤酒车支持出售和租赁两种方式，不与任何合作方案强绑定，可单独选配，价格面议。', open: false },
-  { q: '合同期有多长？', a: '合同期灵活，最短3个月起，具体可与我们的业务沟通确定适合您的合作周期。', open: false },
-  { q: '付款方式是什么？', a: '本期采用线下/转账结算，价格面议。不接入在线支付，确保灵活便捷的合作方式。', open: false },
-  { q: '小程序怎么管理产品和订单？', a: '供应商（管理员账号）在「我的」页面底部进入管理后台，可自主上下架产品、查看客户意向、处理报修工单。', open: false },
-  { q: '如何申请成为合作商？', a: '点击小程序底部「预约」Tab，填写合作意向表单提交，或直接拨打电话咨询。', open: false }
-])
+const faqs = reactive(FAQ_DATA.map(item => ({ ...item, open: false })))
 
 function toggle(idx: number) {
   faqs[idx].open = !faqs[idx].open
