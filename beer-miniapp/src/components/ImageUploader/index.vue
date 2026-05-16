@@ -34,7 +34,7 @@ import { useUpload } from '../../composables/useUpload'
 const props = defineProps<{
   modelValue: string[]
   maxCount?: number
-  bucket?: 'products' | 'repairs'
+  bucket?: 'products' | 'covers'
   hint?: string
 }>()
 
@@ -45,7 +45,7 @@ const emit = defineEmits<{
 const uploading = ref(false)
 const { uploadImage } = useUpload()
 const maxCount = props.maxCount ?? 4
-const bucket = props.bucket ?? 'products'
+const bucket = (props.bucket ?? 'products') as 'products' | 'covers'
 
 async function chooseImage() {
   if (uploading.value) return

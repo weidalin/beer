@@ -4,23 +4,25 @@
     <text class="float-text">联系我们</text>
   </view>
 
-  <!-- ActionSheet -->
-  <uni-popup ref="popupRef" type="bottom" background-color="#fff">
-    <view class="sheet-container">
-      <view class="sheet-title">联系我们</view>
-      <view class="sheet-item" @tap="onCall">
-        <text class="sheet-icon">📞</text>
-        <text class="sheet-label">拨打电话</text>
-        <text class="sheet-phone">{{ appStore.contactPhone }}</text>
+  <!-- 底部弹层：不用 uni-popup，避免未配置 easycom 时小程序端 instance 为 null 报 ctx 错误 -->
+  <view v-if="sheetVisible" class="sheet-mask" @tap="closeSheet">
+    <view class="sheet-panel" @tap.stop>
+      <view class="sheet-container">
+        <view class="sheet-title">联系我们</view>
+        <view class="sheet-item" @tap="onCall">
+          <text class="sheet-icon">📞</text>
+          <text class="sheet-label">拨打电话</text>
+          <text class="sheet-phone">{{ appStore.contactPhone }}</text>
+        </view>
+        <view class="sheet-item" @tap="onCopyWechat">
+          <text class="sheet-icon">💬</text>
+          <text class="sheet-label">复制微信号</text>
+          <text class="sheet-phone">{{ appStore.contactWechat }}</text>
+        </view>
+        <view class="sheet-cancel" @tap="closeSheet">取消</view>
       </view>
-      <view class="sheet-item" @tap="onCopyWechat">
-        <text class="sheet-icon">💬</text>
-        <text class="sheet-label">复制微信号</text>
-        <text class="sheet-phone">{{ appStore.contactWechat }}</text>
-      </view>
-      <view class="sheet-cancel" @tap="closeSheet">取消</view>
     </view>
-  </uni-popup>
+  </view>
 </template>
 
 <script setup lang="ts">
@@ -28,14 +30,14 @@ import { ref } from 'vue'
 import { useAppStore } from '../../stores/app'
 
 const appStore = useAppStore()
-const popupRef = ref()
+const sheetVisible = ref(false)
 
 function showSheet() {
-  popupRef.value?.open()
+  sheetVisible.value = true
 }
 
 function closeSheet() {
-  popupRef.value?.close()
+  sheetVisible.value = false
 }
 
 function onCall() {
@@ -78,7 +80,34 @@ function onCopyWechat() {
   }
 }
 
+.sheet-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.sheet-panel {
+  width: 100%;
+  animation: sheet-up 0.22s ease-out;
+}
+
+@keyframes sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
 .sheet-container {
+  background: #fff;
+  border-radius: 24rpx 24rpx 0 0;
+  overflow: hidden;
   padding: $spacing-md;
   padding-bottom: calc(#{$spacing-md} + env(safe-area-inset-bottom));
 

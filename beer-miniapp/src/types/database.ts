@@ -1,7 +1,14 @@
-// 数据库表类型定义（与 Supabase 表结构对齐）
+/**
+ * 数据库类型定义 — 对齐微信云开发（CloudBase）NoSQL 集合结构
+ *
+ * wx.cloud 云数据库约定：
+ *   _id      — 文档 ID（自动生成字符串）
+ *   _openid  — 写入时由云函数填充，或由权限规则自动注入
+ */
 
+/** users 集合 */
 export interface User {
-  id: string
+  _id: string
   openid: string
   nickname: string | null
   avatar_url: string | null
@@ -9,23 +16,17 @@ export interface User {
   created_at: string
 }
 
-export interface Category {
-  id: string
-  name: string
-  slug: 'beer' | 'beer_machine' | 'beer_car'
-  sort_order: number
-}
-
+/** products 集合 */
 export interface Product {
-  id: string
+  _id: string
   name: string
   category: 'beer' | 'beer_machine' | 'beer_car'
   description: string | null
   spec: string | null
   price_range: string | null
   supply_type: 'sell' | 'rent' | 'both'
-  cover_image: string | null
-  images: string[]
+  cover_image: string | null   // wx.cloud fileID
+  images: string[]             // wx.cloud fileID 数组
   is_active: boolean
   sort_order: number
   tags: string[]
@@ -33,45 +34,26 @@ export interface Product {
   updated_at: string
 }
 
+/** customers 集合（合作意向） */
 export interface Customer {
-  id: string
-  user_id: string | null
-  name: string
-  phone: string
-  address: string | null
-  location: { latitude: number; longitude: number } | null
+  _id: string
+  openid: string | null          // 已登录时写入，否则为 null
+  nickname: string               // 昵称（必填）
+  phone: string                  // 联系电话（必填）
+  address: string | null         // 档口地址（选填）
+  location: { latitude: number; longitude: number } | null  // GPS 坐标（选填）
   biz_type: 'night_stall' | 'open_restaurant' | 'market' | 'other' | null
   daily_volume: '<50' | '50-100' | '>100' | null
   interested_plan: 'basic' | 'standard' | 'premium' | 'undecided' | null
-  need_beer_car: boolean
-  beer_car_type: 'buy' | 'rent' | null
+  need_beer_car: 'no' | 'buy' | 'rent' | null
   delivery_area: 'prd' | 'other' | null
-  status: 'pending' | 'contacted' | 'signed' | 'lost'
-  source: string | null
   notes: string | null
-  follow_note: string | null
   created_at: string
-  updated_at: string
 }
 
-export interface RepairOrder {
-  id: string
-  user_id: string | null
-  customer_name: string
-  phone: string
-  device_type: 'beer_machine' | 'beer_car' | 'other'
-  issue_desc: string
-  issue_images: string[]
-  preferred_time: string | null
-  status: 'pending' | 'assigned' | 'processing' | 'done'
-  assignee: string | null
-  handler_notes: string | null
-  created_at: string
-  updated_at: string
-}
-
+/** plans 集合（合作方案） */
 export interface Plan {
-  id: string
+  _id: string
   name: string
   level: 'basic' | 'standard' | 'premium'
   description: string | null

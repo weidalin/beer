@@ -59,7 +59,7 @@ const supplyTypeLabel = computed(() => {
 
 function goDetail() {
   uni.navigateTo({
-    url: `/pages/products/detail?id=${props.product.id}`
+    url: `/pages/products/detail?id=${props.product._id}`
   })
 }
 </script>

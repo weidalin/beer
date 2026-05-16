@@ -4,7 +4,7 @@ import { ref } from 'vue'
 export const useAppStore = defineStore('app', () => {
   const contactPhone = ref(import.meta.env.VITE_CONTACT_PHONE || '13800000000')
   const contactWechat = ref(import.meta.env.VITE_CONTACT_WECHAT || 'jiuhaocang')
-  const brandName = ref('广东精酿啤酒一站式供应链')
+  const brandName = ref('精酿啤酒一站式供应链')
   const brandSlogan = ref('鲜啤直供 · 珠三角当日达')
 
   // 全局加载状态

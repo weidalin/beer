@@ -4,7 +4,7 @@
       <!-- 品牌头图 -->
       <view class="brand-header">
         <image class="brand-logo" src="/static/images/logo.png" mode="aspectFit" />
-        <text class="brand-name">广东精酿啤酒一站式供应链</text>
+        <text class="brand-name">精酿啤酒一站式供应链</text>
         <text class="brand-slogan">鲜啤直供 · 珠三角当日达</text>
       </view>
 
@@ -12,7 +12,7 @@
       <view class="card" style="margin: 24rpx;">
         <text class="section-title">关于我们</text>
         <text class="brand-intro">
-          广东精酿啤酒一站式供应链是专注服务宵夜档、大排档、小型餐饮档口的桶装鲜啤直供品牌。我们提供桶装鲜啤配送、打酒机安装维护、啤酒车出售及租赁等一站式服务。
+          精酿啤酒一站式供应链是专注服务宵夜档、大排档、小型餐饮档口的桶装鲜啤直供品牌。我们提供桶装鲜啤配送、打酒机安装维护、啤酒车出售及租赁等一站式服务。
 
           {{ '\n\n' }}覆盖珠三角核心区域，提供当日达配送；粤港澳大湾区稳定供应，品质有保证。专业维修团队4小时响应，让您的生意无忧运营。
         </text>

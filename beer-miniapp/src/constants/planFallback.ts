@@ -1,9 +1,9 @@
 import type { Plan } from '../types/database'
 
-/** Supabase 未就绪或 plans 表无数据时使用，保证方案页 Tab / 对比表始终有三列 */
+/** 云数据库无数据时的本地兜底数据，保证方案页始终有三列可展示 */
 export const PLAN_FALLBACK: Plan[] = [
   {
-    id: '00000000-0000-0000-0000-plan000000001',
+    _id: 'plan-basic',
     name: '基础版',
     level: 'basic',
     description: '适合刚起步的宵夜档、夜市摊，低成本尝鲜合作。',
@@ -13,7 +13,7 @@ export const PLAN_FALLBACK: Plan[] = [
     sort_order: 1
   },
   {
-    id: '00000000-0000-0000-0000-plan000000002',
+    _id: 'plan-standard',
     name: '标准版',
     level: 'standard',
     description: '大多数大排档、宵夜店的优选方案。',
@@ -23,7 +23,7 @@ export const PLAN_FALLBACK: Plan[] = [
     sort_order: 2
   },
   {
-    id: '00000000-0000-0000-0000-plan000000003',
+    _id: 'plan-premium',
     name: '旗舰版',
     level: 'premium',
     description: '高客流档口、连锁夜市摊位尊享。',

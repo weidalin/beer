@@ -148,7 +148,9 @@ const isEdit = computed(() => !!productId.value)
 
 const coverImages = ref<string[]>([])
 
-const form = reactive<Partial<Product>>({
+type ProductForm = Omit<Partial<Product>, '_id' | 'created_at' | 'updated_at'>
+
+const form = reactive<ProductForm>({
   name: '',
   category: 'beer',
   description: '',
@@ -197,8 +199,8 @@ function toggleTag(tag: string) {
 
 onLoad(async (options) => {
   if (options?.id) {
-    productId.value = options.id
-    const product = await fetchProductDetail(options.id)
+    productId.value = options.id as string
+    const product = await fetchProductDetail(options.id as string)
     if (product) {
       Object.assign(form, product)
       if (product.cover_image) {
@@ -229,10 +231,10 @@ async function save() {
     }
 
     if (isEdit.value) {
-      await updateProduct(productId.value!, payload)
+      await updateProduct(productId.value!, payload as Partial<Product>)
       uni.showToast({ title: '保存成功', icon: 'success' })
     } else {
-      await createProduct(payload)
+      await createProduct(payload as Partial<Product>)
       uni.showToast({ title: '创建成功', icon: 'success' })
     }
 

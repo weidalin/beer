@@ -3,7 +3,7 @@
     {
       "path": "pages/index/index",
       "style": {
-        "navigationBarTitleText": "广东精酿啤酒一站式供应链",
+        "navigationBarTitleText": "精酿啤酒一站式供应链",
         "navigationBarBackgroundColor": "#3E1C00",
         "navigationBarTextStyle": "white",
         "navigationStyle": "custom"
@@ -36,31 +36,7 @@
     {
       "path": "pages/booking/index",
       "style": {
-        "navigationBarTitleText": "在线预约",
-        "navigationBarBackgroundColor": "#3E1C00",
-        "navigationBarTextStyle": "white"
-      }
-    },
-    {
-      "path": "pages/repair/form",
-      "style": {
-        "navigationBarTitleText": "设备报修",
-        "navigationBarBackgroundColor": "#3E1C00",
-        "navigationBarTextStyle": "white"
-      }
-    },
-    {
-      "path": "pages/repair/status",
-      "style": {
-        "navigationBarTitleText": "工单进度",
-        "navigationBarBackgroundColor": "#3E1C00",
-        "navigationBarTextStyle": "white"
-      }
-    },
-    {
-      "path": "pages/delivery/map",
-      "style": {
-        "navigationBarTitleText": "配送区域",
+        "navigationBarTitleText": "合作意向登记",
         "navigationBarBackgroundColor": "#3E1C00",
         "navigationBarTextStyle": "white"
       }
@@ -92,7 +68,7 @@
     {
       "path": "pages/admin/index/index",
       "style": {
-        "navigationBarTitleText": "管理后台",
+        "navigationBarTitleText": "供应商后台",
         "navigationBarBackgroundColor": "#3E1C00",
         "navigationBarTextStyle": "white"
       }
@@ -109,30 +85,6 @@
       "path": "pages/admin/products/edit",
       "style": {
         "navigationBarTitleText": "编辑产品",
-        "navigationBarBackgroundColor": "#3E1C00",
-        "navigationBarTextStyle": "white"
-      }
-    },
-    {
-      "path": "pages/admin/customers/list",
-      "style": {
-        "navigationBarTitleText": "客户管理",
-        "navigationBarBackgroundColor": "#3E1C00",
-        "navigationBarTextStyle": "white"
-      }
-    },
-    {
-      "path": "pages/admin/customers/detail",
-      "style": {
-        "navigationBarTitleText": "客户详情",
-        "navigationBarBackgroundColor": "#3E1C00",
-        "navigationBarTextStyle": "white"
-      }
-    },
-    {
-      "path": "pages/admin/orders/list",
-      "style": {
-        "navigationBarTitleText": "工单管理",
         "navigationBarBackgroundColor": "#3E1C00",
         "navigationBarTextStyle": "white"
       }
@@ -178,7 +130,7 @@
   },
   "globalStyle": {
     "navigationBarTextStyle": "white",
-    "navigationBarTitleText": "广东精酿啤酒一站式供应链",
+    "navigationBarTitleText": "精酿啤酒一站式供应链",
     "navigationBarBackgroundColor": "#3E1C00",
     "backgroundColor": "#F7F3EE"
   }

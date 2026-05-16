@@ -164,8 +164,8 @@ function onBooking() {
 }
 
 onShareAppMessage(() => ({
-  title: product.value?.name || '鲜啤直供 · 广东精酿啤酒一站式供应链',
-  path: `/pages/products/detail?id=${product.value?.id}`,
+  title: product.value?.name || '鲜啤直供 · 精酿啤酒一站式供应链',
+  path: `/pages/products/detail?id=${product.value?._id}`,
   imageUrl: product.value?.cover_image || '/static/images/share-cover.png'
 }))
 </script>

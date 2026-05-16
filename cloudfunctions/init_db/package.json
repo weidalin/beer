@@ -1,0 +1,9 @@
+{
+  "name": "init_db",
+  "version": "1.0.0",
+  "description": "一次性数据库种子（plans/products/users 管理员）",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

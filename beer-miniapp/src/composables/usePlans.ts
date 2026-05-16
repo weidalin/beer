@@ -1,21 +1,26 @@
-import { supabase } from '../lib/supabase'
+import { db } from '../lib/cloud'
 import type { Plan } from '../types/database'
 import { PLAN_FALLBACK } from '../constants/planFallback'
 
 export function usePlans() {
+  /**
+   * 从云数据库读取合作方案，失败时使用本地兜底数据。
+   * 一期方案内容由运营在云开发控制台写入，前台只读。
+   */
   async function fetchPlans(): Promise<Plan[]> {
     try {
-      const { data, error } = await supabase
-        .from('plans')
-        .select('*')
-        .eq('is_active', true)
-        .order('sort_order', { ascending: true })
+      const { data } = await db
+        .collection('plans')
+        .where({ is_active: true })
+        .orderBy('sort_order', 'asc')
+        .limit(10)
+        .get()
 
-      if (!error && Array.isArray(data) && data.length > 0) {
-        return data as Plan[]
+      if (Array.isArray(data) && data.length > 0) {
+        return data as unknown as Plan[]
       }
     } catch {
-      // 未配置 Supabase、网络失败或 RLS 拒绝时走本地兜底
+      // 网络异常或权限问题时走本地兜底
     }
     return PLAN_FALLBACK
   }

@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { onLaunch, onShow } from '@dcloudio/uni-app'
+import { initCloud } from './lib/cloud'
 import { useUserStore } from './stores/user'
 
 const userStore = useUserStore()
 
 onLaunch(() => {
-  // 从本地存储恢复用户信息
+  initCloud()
   userStore.loadFromStorage()
 })
 

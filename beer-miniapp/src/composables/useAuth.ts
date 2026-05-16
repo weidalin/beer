@@ -1,10 +1,47 @@
-import { supabase } from '../lib/supabase'
+import { callFunction, db } from '../lib/cloud'
 import { useUserStore } from '../stores/user'
 import type { User } from '../types/database'
+
+function formatCloudCallError(err: unknown): string {
+  if (err instanceof Error) {
+    const m = err.message
+    if (
+      m.includes('云环境') ||
+      m.includes('云函数') ||
+      m.includes('云开发未初始化') ||
+      m.includes('微信登录失败')
+    ) {
+      return m
+    }
+  }
+  const msg =
+    err && typeof err === 'object' && 'errMsg' in err
+      ? String((err as { errMsg?: string }).errMsg)
+      : err instanceof Error
+        ? err.message
+        : String(err)
+  if (msg.includes('INVALID_ENV') || msg.includes('Environment not found')) {
+    return '云环境无效：请在 .env 配置 VITE_CLOUD_ENV_ID 并重新编译，或在开发者工具云开发选中正确环境'
+  }
+  if (msg.includes('FUNCTION_NOT_FOUND')) {
+    return '云函数未部署，请在云开发中上传 wxLogin'
+  }
+  if (msg.includes('云开发未初始化')) {
+    return msg
+  }
+  return '登录失败，请稍后重试'
+}
 
 export function useAuth() {
   const userStore = useUserStore()
 
+  /**
+   * 微信登录流程：
+   * 1. wx.login 获取 code
+   * 2. 调用云函数 wxLogin，code 换取 openid（服务端安全处理）
+   * 3. 查询 users 集合，首次登录自动创建记录
+   * 4. role === 'admin' 时 userStore.isAdmin === true
+   */
   async function wxLogin(): Promise<void> {
     userStore.isLoading = true
     try {
@@ -19,93 +56,66 @@ export function useAuth() {
 
       if (!loginRes.code) throw new Error('微信登录失败：未获取到 code')
 
-      // 2. 调用 Supabase Edge Function 用 code 换 openid
-      const { data: wxData, error: fnError } = await supabase.functions.invoke('wx-login', {
-        body: { code: loginRes.code }
+      // 2. 调用云函数换取 openid（云函数在服务端用 appSecret 换取）
+      const { openid } = await callFunction<{ openid: string }>('wxLogin', {
+        code: loginRes.code
       })
 
-      if (fnError || !wxData?.openid) {
-        throw new Error('获取用户信息失败')
-      }
+      if (!openid) throw new Error('获取 openid 失败')
 
-      const { openid } = wxData
+      // 3. 查询 users 集合
+      const { data: users } = await db
+        .collection('users')
+        .where({ openid })
+        .limit(1)
+        .get()
 
-      // 3. 用 openid 作为自定义账号登录 Supabase
-      //    规则：email = openid@wx.beer，password = openid（首次注册时自动创建）
-      const fakeEmail = `${openid}@wx.beer`
-      const fakePassword = openid
+      let userRecord: User
 
-      let session = null
-
-      // 先尝试登录
-      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-        email: fakeEmail,
-        password: fakePassword
-      })
-
-      if (signInError) {
-        // 账号不存在时，注册新账号
-        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-          email: fakeEmail,
-          password: fakePassword
-        })
-        if (signUpError) throw new Error('用户注册失败')
-        session = signUpData.session
+      if (users && users.length > 0) {
+        userRecord = users[0] as unknown as User
       } else {
-        session = signInData.session
+        // 首次登录：创建用户记录（role 默认 customer，admin 由运营在控制台写入）
+        const now = new Date().toISOString()
+        const { _id } = await db.collection('users').add({
+          data: {
+            openid,
+            nickname: null,
+            avatar_url: null,
+            role: 'customer',
+            created_at: now
+          }
+        })
+        userRecord = {
+          _id,
+          openid,
+          nickname: null,
+          avatar_url: null,
+          role: 'customer',
+          created_at: now
+        }
       }
 
-      if (!session) throw new Error('登录失败：会话创建失败')
-
-      // 4. 查询或创建 users 表记录
-      let { data: userRecord } = await supabase
-        .from('users')
-        .select('*')
-        .eq('openid', openid)
-        .single()
-
-      if (!userRecord) {
-        const { data: newUser } = await supabase
-          .from('users')
-          .insert({ openid, role: 'customer' })
-          .select()
-          .single()
-        userRecord = newUser
-      }
-
-      if (userRecord) {
-        userStore.setUser(userRecord as User)
-      }
+      userStore.setUser(userRecord)
+    } catch (e) {
+      console.error('wxLogin', e)
+      throw new Error(formatCloudCallError(e))
     } finally {
       userStore.isLoading = false
     }
   }
 
+  /**
+   * 从本地 Storage 静默恢复登录态（无需网络，适合 App 启动时调用）
+   */
   async function silentLogin(): Promise<boolean> {
-    try {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (session) {
-        const openid = session.user.email?.replace('@wx.beer', '')
-        if (openid) {
-          const { data: userRecord } = await supabase
-            .from('users')
-            .select('*')
-            .eq('openid', openid)
-            .single()
-          if (userRecord) {
-            userStore.setUser(userRecord as User)
-            return true
-          }
-        }
-      }
-      return false
-    } catch {
-      return false
-    }
+    return userStore.loadFromStorage()
   }
 
-  async function logout(): Promise<void> {
-    await supabase.auth.signOut()
+  /**
+   * 退出登录：清除本地状态
+   */
+  function logout(): void {
     userStore.clearUser()
     uni.reLaunch({ url: '/pages/index/index' })
   }

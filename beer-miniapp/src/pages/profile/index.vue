@@ -24,17 +24,12 @@
         </view>
       </view>
 
-      <!-- 我的记录 -->
-      <view class="section-card card" style="margin: 24rpx 24rpx 16rpx;">
+      <!-- 我的记录（已登录才显示） -->
+      <view v-if="userStore.isLoggedIn" class="section-card card" style="margin: 24rpx 24rpx 16rpx;">
         <text class="section-title">我的记录</text>
-        <view class="list-item" @tap="goBookings">
-          <text class="list-icon">📦</text>
-          <text class="list-label">我的预约申请</text>
-          <text class="list-arrow">›</text>
-        </view>
-        <view class="list-item" style="border-bottom: none;" @tap="goRepairs">
-          <text class="list-icon">🔧</text>
-          <text class="list-label">我的报修工单</text>
+        <view class="list-item" style="border-bottom: none;" @tap="goIntentions">
+          <text class="list-icon">📋</text>
+          <text class="list-label">我的合作意向</text>
           <text class="list-arrow">›</text>
         </view>
       </view>
@@ -48,16 +43,11 @@
           <text class="list-meta">{{ appStore.contactPhone }}</text>
           <text class="list-arrow">›</text>
         </view>
-        <button class="list-item-btn" open-type="contact">
+        <button class="list-item-btn" open-type="contact" style="border-bottom: none;">
           <text class="list-icon">💬</text>
           <text class="list-label">微信客服</text>
           <text class="list-arrow">›</text>
         </button>
-        <view class="list-item" style="border-bottom: none;" @tap="goDelivery">
-          <text class="list-icon">📍</text>
-          <text class="list-label">查看配送区域</text>
-          <text class="list-arrow">›</text>
-        </view>
       </view>
 
       <!-- 关于 -->
@@ -116,9 +106,10 @@ async function doLogin() {
     await wxLogin()
     uni.hideLoading()
     uni.showToast({ title: '登录成功', icon: 'success' })
-  } catch {
+  } catch (e) {
     uni.hideLoading()
-    uni.showToast({ title: '登录失败，请重试', icon: 'none' })
+    const title = e instanceof Error ? e.message : '登录失败，请重试'
+    uni.showToast({ title, icon: 'none', duration: 4000 })
   }
 }
 
@@ -132,25 +123,12 @@ function logout() {
   })
 }
 
-function goBookings() {
+function goIntentions() {
   if (!userStore.isLoggedIn) {
     uni.showToast({ title: '请先登录', icon: 'none' })
     return
   }
-  // 预约记录页（简单跳转到 booking 可看到提交记录）
-  uni.showToast({ title: '功能开发中', icon: 'none' })
-}
-
-function goRepairs() {
-  if (!userStore.isLoggedIn) {
-    uni.showToast({ title: '请先登录', icon: 'none' })
-    return
-  }
-  uni.navigateTo({ url: '/pages/repair/status' })
-}
-
-function goDelivery() {
-  uni.navigateTo({ url: '/pages/delivery/map' })
+  uni.switchTab({ url: '/pages/booking/index' })
 }
 
 function goAbout() {
@@ -170,7 +148,7 @@ function shareApp() {
 }
 
 onShareAppMessage(() => ({
-  title: '广东精酿啤酒一站式供应链 — 鲜啤直供，珠三角当日达',
+  title: '精酿啤酒一站式供应链 — 鲜啤直供，珠三角当日达',
   path: '/pages/index/index'
 }))
 </script>

@@ -30,9 +30,9 @@
         <view
           class="product-item card"
           v-for="product in products"
-          :key="product.id"
-          :class="{ 'product-item--selected': selected.includes(product.id) }"
-          @longpress="toggleSelect(product.id)"
+          :key="product._id"
+          :class="{ 'product-item--selected': selected.includes(product._id) }"
+          @longpress="toggleSelect(product._id)"
         >
           <image
             class="product-thumb"
@@ -51,7 +51,7 @@
             </view>
           </view>
           <view class="product-actions">
-            <text class="action-btn" @tap.stop="goEdit(product.id)">编辑</text>
+            <text class="action-btn" @tap.stop="goEdit(product._id)">编辑</text>
             <text
               class="action-btn"
               :class="product.is_active ? 'action-btn--warn' : 'action-btn--success'"
@@ -128,7 +128,7 @@ function toggleSelect(id: string) {
 
 async function toggleActive(product: Product) {
   try {
-    await toggleProductActive(product.id, !product.is_active)
+    await toggleProductActive(product._id, !product.is_active)
     product.is_active = !product.is_active
     uni.showToast({
       title: product.is_active ? '已上架' : '已下架',

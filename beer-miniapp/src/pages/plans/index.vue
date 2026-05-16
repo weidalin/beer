@@ -195,7 +195,7 @@ function goBeerCar() {
 }
 
 onShareAppMessage(() => ({
-  title: '广东精酿啤酒一站式供应链 — 合作方案一览',
+  title: '精酿啤酒一站式供应链 — 合作方案一览',
   path: '/pages/plans/index'
 }))
 </script>

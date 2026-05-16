@@ -51,7 +51,7 @@
       <view v-else-if="products.length > 0" class="product-grid">
         <ProductCard
           v-for="product in products"
-          :key="product.id"
+          :key="product._id"
           :product="product"
         />
       </view>

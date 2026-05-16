@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import { supabase } from '../lib/supabase'
+import { db } from '../lib/cloud'
 import type { Product } from '../types/database'
 import type { ProductFilter } from '../types/api'
 
@@ -9,103 +9,92 @@ export function useProducts() {
   const hasMore = ref(true)
   const PAGE_SIZE = 20
 
+  /** C端：获取上架产品（支持分类过滤、分页） */
   async function fetchProducts(filter: ProductFilter = {}): Promise<Product[]> {
     loading.value = true
     try {
-      const { category, keyword, page = 1, pageSize = PAGE_SIZE } = filter
-      const from = (page - 1) * pageSize
-      const to = from + pageSize - 1
+      const { category, page = 1, pageSize = PAGE_SIZE } = filter
+      const skip = (page - 1) * pageSize
 
-      let query = supabase
-        .from('products')
-        .select('*')
-        .eq('is_active', true)
-        .order('sort_order', { ascending: false })
-        .range(from, to)
+      let query = db
+        .collection('products')
+        .where(
+          category && category !== 'all'
+            ? { is_active: true, category }
+            : { is_active: true }
+        )
+        .orderBy('sort_order', 'desc')
+        .skip(skip)
+        .limit(pageSize)
 
-      if (category && category !== 'all') {
-        query = query.eq('category', category)
-      }
-      if (keyword) {
-        query = query.ilike('name', `%${keyword}%`)
-      }
+      const { data } = await query.get()
+      const result = (data || []) as unknown as Product[]
 
-      const { data, error } = await query
-      if (error) throw error
-
-      hasMore.value = (data?.length ?? 0) >= pageSize
-      return (data || []) as Product[]
+      hasMore.value = result.length >= pageSize
+      return result
     } finally {
       loading.value = false
     }
   }
 
+  /** C端：获取单个产品详情 */
   async function fetchProductDetail(id: string): Promise<Product | null> {
-    const { data, error } = await supabase
-      .from('products')
-      .select('*')
-      .eq('id', id)
-      .single()
-
-    if (error) return null
-    return data as Product
+    try {
+      const { data } = await db.collection('products').doc(id).get()
+      return (data as unknown as Product) || null
+    } catch {
+      return null
+    }
   }
 
-  // B 端：获取全部产品（含下架）
+  /** B端：获取全部产品（含下架），支持状态过滤 */
   async function fetchAllProducts(filter: { isActive?: boolean } = {}): Promise<Product[]> {
-    let query = supabase
-      .from('products')
-      .select('*')
-      .order('sort_order', { ascending: false })
+    const condition: Record<string, unknown> =
+      filter.isActive !== undefined ? { is_active: filter.isActive } : {}
 
-    if (filter.isActive !== undefined) {
-      query = query.eq('is_active', filter.isActive)
+    const { data } = await db
+      .collection('products')
+      .where(condition)
+      .orderBy('sort_order', 'desc')
+      .limit(100)
+      .get()
+
+    return (data || []) as unknown as Product[]
+  }
+
+  /** B端：新增产品 */
+  async function createProduct(product: Partial<Product>): Promise<Product> {
+    const now = new Date().toISOString()
+    const payload = {
+      ...product,
+      is_active: product.is_active ?? false,
+      sort_order: product.sort_order ?? 0,
+      tags: product.tags ?? [],
+      images: product.images ?? [],
+      created_at: now,
+      updated_at: now
     }
 
-    const { data, error } = await query
-    if (error) throw error
-    return (data || []) as Product[]
+    const { _id } = await db.collection('products').add({ data: payload })
+    return { _id, ...payload } as unknown as Product
   }
 
-  async function createProduct(product: Partial<Product>): Promise<Product> {
-    const { data, error } = await supabase
-      .from('products')
-      .insert(product)
-      .select()
-      .single()
-
-    if (error) throw error
-    return data as Product
+  /** B端：更新产品 */
+  async function updateProduct(id: string, updates: Partial<Product>): Promise<void> {
+    const payload: Record<string, unknown> = { ...updates as Record<string, unknown>, updated_at: new Date().toISOString() }
+    await db.collection('products').doc(id).update({ data: payload })
   }
 
-  async function updateProduct(id: string, updates: Partial<Product>): Promise<Product> {
-    const { data, error } = await supabase
-      .from('products')
-      .update(updates)
-      .eq('id', id)
-      .select()
-      .single()
-
-    if (error) throw error
-    return data as Product
-  }
-
+  /** B端：切换上下架状态 */
   async function toggleProductActive(id: string, isActive: boolean): Promise<void> {
-    const { error } = await supabase
-      .from('products')
-      .update({ is_active: isActive })
-      .eq('id', id)
-
-    if (error) throw error
+    await db.collection('products').doc(id).update({
+      data: { is_active: isActive, updated_at: new Date().toISOString() }
+    })
   }
 
+  /** B端：删除产品 */
   async function deleteProduct(id: string): Promise<void> {
-    const { error } = await supabase
-      .from('products')
-      .delete()
-      .eq('id', id)
-
-    if (error) throw error
+    await db.collection('products').doc(id).remove()
   }
 
   return {

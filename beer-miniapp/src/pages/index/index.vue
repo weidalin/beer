@@ -4,7 +4,7 @@
     <view class="nav-bar" :style="{ paddingTop: statusBarHeight + 'px' }">
       <view class="nav-content">
         <image class="nav-logo" src="/static/images/logo.png" mode="aspectFit" />
-        <text class="nav-title">广东精酿啤酒一站式供应链</text>
+        <text class="nav-title">精酿啤酒一站式供应链</text>
         <view class="nav-phone" @tap="appStore.callPhone()">
           <text class="nav-phone-icon">📞</text>
         </view>
@@ -62,9 +62,9 @@
           <view class="hot-products-inner">
             <view
               v-for="product in hotProducts"
-              :key="product.id"
+              :key="product._id"
               class="hot-product-card"
-              @tap="goProductDetail(product.id)"
+              @tap="goProductDetail(product._id)"
             >
               <image
                 :src="product.cover_image || '/static/images/placeholder.png'"
@@ -166,14 +166,14 @@ const quickEntries = [
     action: () => uni.switchTab({ url: '/pages/booking/index' })
   },
   {
-    icon: '🔧',
-    label: '预约报修',
-    action: () => uni.navigateTo({ url: '/pages/repair/form' })
-  },
-  {
     icon: '📞',
     label: '联系我们',
     action: () => appStore.callPhone()
+  },
+  {
+    icon: '📋',
+    label: '提交意向',
+    action: () => uni.switchTab({ url: '/pages/booking/index' })
   }
 ]
 

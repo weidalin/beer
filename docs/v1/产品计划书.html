@@ -1,0 +1,1460 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>精酿啤酒一站式供应链 — 微信小程序产品计划书 v2.5</title>
+  <style>
+    :root {
+      --amber: #F5A623;
+      --amber-light: #FDF0D5;
+      --brown: #3E1C00;
+      --brown-mid: #7A3B0A;
+      --cream: #FFF8F0;
+      --bg: #F7F3EE;
+      --red: #E84C3D;
+      --green: #27AE60;
+      --text: #2C1810;
+      --text-muted: #8A7060;
+      --border: #E8D8C8;
+      --shadow: 0 2px 12px rgba(62,28,0,0.08);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      font-size: 15px;
+    }
+
+    /* ── Layout ── */
+    .layout { display: flex; min-height: 100vh; }
+
+    /* ── Sidebar TOC ── */
+    nav.toc {
+      width: 260px;
+      flex-shrink: 0;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      background: var(--brown);
+      padding: 28px 0 40px;
+    }
+    nav.toc .toc-logo {
+      padding: 0 20px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+      margin-bottom: 16px;
+    }
+    nav.toc .toc-logo .brand { font-size: 13px; color: var(--amber); font-weight: 700; line-height: 1.3; }
+    nav.toc .toc-logo .version { font-size: 11px; color: rgba(255,255,255,0.45); margin-top: 2px; }
+    nav.toc a {
+      display: block;
+      padding: 7px 20px 7px 20px;
+      color: rgba(255,255,255,0.6);
+      text-decoration: none;
+      font-size: 13px;
+      transition: all 0.15s;
+      border-left: 3px solid transparent;
+    }
+    nav.toc a:hover { color: var(--amber); background: rgba(245,166,35,0.08); }
+    nav.toc a.h2 { font-weight: 600; color: rgba(255,255,255,0.85); margin-top: 4px; }
+    nav.toc a.h3 { padding-left: 32px; font-size: 12px; }
+
+    /* ── Main content ── */
+    main {
+      flex: 1;
+      min-width: 0;
+      padding: 48px 56px 80px;
+      max-width: 960px;
+    }
+
+    /* ── Cover ── */
+    .cover {
+      background: linear-gradient(135deg, var(--brown) 0%, var(--brown-mid) 100%);
+      border-radius: 16px;
+      padding: 48px;
+      margin-bottom: 48px;
+      color: white;
+    }
+    .cover .tag {
+      display: inline-block;
+      background: var(--amber);
+      color: var(--brown);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 4px;
+      margin-bottom: 16px;
+    }
+    .cover h1 {
+      font-size: 28px;
+      font-weight: 800;
+      line-height: 1.3;
+      margin-bottom: 8px;
+    }
+    .cover h1 span { color: var(--amber); }
+    .cover .subtitle { font-size: 16px; color: rgba(255,255,255,0.65); margin-bottom: 28px; }
+    .cover .meta { display: flex; flex-wrap: wrap; gap: 24px; }
+    .cover .meta-item { font-size: 13px; color: rgba(255,255,255,0.5); }
+    .cover .meta-item strong { color: rgba(255,255,255,0.85); display: block; font-size: 14px; }
+
+    /* ── Section headers ── */
+    h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--brown);
+      margin: 48px 0 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--amber);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    h2 .num {
+      background: var(--amber);
+      color: var(--brown);
+      font-size: 13px;
+      font-weight: 800;
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--brown-mid);
+      margin: 28px 0 12px;
+    }
+    h4 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+      margin: 20px 0 8px;
+    }
+
+    /* ── Prose ── */
+    p { margin-bottom: 12px; }
+    ul, ol { padding-left: 22px; margin-bottom: 12px; }
+    li { margin-bottom: 4px; }
+    strong { color: var(--brown); }
+
+    /* ── Card ── */
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+    }
+
+    /* ── Tables ── */
+    .table-wrap { overflow-x: auto; margin-bottom: 20px; border-radius: 10px; box-shadow: var(--shadow); }
+    table { width: 100%; border-collapse: collapse; background: white; font-size: 14px; }
+    thead tr { background: var(--brown); color: white; }
+    thead th { padding: 11px 16px; text-align: left; font-weight: 600; font-size: 13px; }
+    tbody tr { border-bottom: 1px solid var(--border); }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:nth-child(even) { background: var(--cream); }
+    tbody td { padding: 10px 16px; vertical-align: top; font-size: 13px; }
+    tbody td:first-child { font-weight: 600; color: var(--brown-mid); white-space: nowrap; }
+
+    /* ── Code blocks ── */
+    pre {
+      background: #1E1008;
+      color: #F0E0C8;
+      border-radius: 10px;
+      padding: 20px;
+      overflow-x: auto;
+      font-size: 12.5px;
+      line-height: 1.6;
+      margin-bottom: 16px;
+      font-family: "JetBrains Mono", "Fira Code", Consolas, monospace;
+    }
+    code {
+      background: var(--amber-light);
+      color: var(--brown-mid);
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 13px;
+      font-family: Consolas, monospace;
+    }
+    pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+
+    /* ── Badges ── */
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      vertical-align: middle;
+    }
+    .badge-must { background: #FDE8E7; color: #C0392B; }
+    .badge-should { background: #E8F4FD; color: #1A6FA0; }
+    .badge-could { background: #EBF9F1; color: #1E8449; }
+    .badge-no { background: #F2F2F2; color: #888; }
+    .badge-req { background: #FDE8E7; color: #C0392B; }
+    .badge-opt { background: #F2F2F2; color: #888; }
+
+    /* ── Callout ── */
+    .callout {
+      border-left: 4px solid var(--amber);
+      background: var(--amber-light);
+      padding: 14px 18px;
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 16px;
+      font-size: 13.5px;
+    }
+    .callout.info { border-color: #3498DB; background: #EBF5FB; }
+    .callout.warn { border-color: var(--red); background: #FEF2F1; }
+
+    /* ── Wireframe ── */
+    .wireframe {
+      background: #1E1008;
+      color: #F0E0C8;
+      border-radius: 10px;
+      padding: 20px 20px;
+      font-size: 12px;
+      line-height: 1.7;
+      font-family: Consolas, monospace;
+      margin-bottom: 16px;
+      overflow-x: auto;
+    }
+
+    /* ── Feature grid ── */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .feature-item {
+      background: white;
+      border-radius: 10px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+      border-top: 3px solid var(--amber);
+    }
+    .feature-item .icon { font-size: 24px; margin-bottom: 8px; }
+    .feature-item .title { font-weight: 700; color: var(--brown); font-size: 14px; margin-bottom: 4px; }
+    .feature-item .desc { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+
+    /* ── Module cards ── */
+    .module-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 700px) { .module-row { grid-template-columns: 1fr; } }
+    .module-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+    .module-card .header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .module-card .header .icon {
+      width: 36px; height: 36px;
+      background: var(--amber-light);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    .module-card .header .name { font-weight: 700; font-size: 15px; color: var(--brown); }
+    .module-card ul { padding-left: 18px; }
+    .module-card li { font-size: 13px; color: var(--text-muted); margin-bottom: 3px; }
+
+    /* ── Auth flow diagram ── */
+    .flow {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      align-items: flex-start;
+      margin-bottom: 20px;
+    }
+    .flow-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .flow-left { display: flex; flex-direction: column; align-items: center; }
+    .flow-dot {
+      width: 32px; height: 32px;
+      background: var(--amber);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700; color: var(--brown);
+      flex-shrink: 0;
+    }
+    .flow-line { width: 2px; flex: 1; min-height: 20px; background: var(--border); }
+    .flow-content { padding: 4px 0 20px; flex: 1; }
+    .flow-content .step-title { font-weight: 700; font-size: 14px; color: var(--brown); margin-bottom: 4px; }
+    .flow-content .step-desc { font-size: 13px; color: var(--text-muted); }
+    .flow-branch {
+      margin-left: 44px;
+      display: flex;
+      gap: 12px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .branch-box {
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      border: 1.5px solid var(--border);
+      background: white;
+    }
+    .branch-box.admin { border-color: var(--amber); background: var(--amber-light); }
+    .branch-box .label { font-weight: 700; color: var(--brown-mid); font-size: 11px; margin-bottom: 2px; }
+
+    /* ── Color palette ── */
+    .palette { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+    .swatch {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: white;
+      border-radius: 8px;
+      padding: 8px 14px;
+      box-shadow: var(--shadow);
+      font-size: 13px;
+    }
+    .swatch .dot { width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--border); }
+
+    /* ── Timeline ── */
+    .timeline { position: relative; padding-left: 28px; }
+    .timeline::before { content: ''; position: absolute; left: 11px; top: 0; bottom: 0; width: 2px; background: var(--border); }
+    .milestone {
+      position: relative;
+      padding-bottom: 24px;
+    }
+    .milestone::before {
+      content: '';
+      position: absolute;
+      left: -22px;
+      top: 6px;
+      width: 12px; height: 12px;
+      background: var(--amber);
+      border-radius: 50%;
+      border: 2px solid white;
+      box-shadow: 0 0 0 2px var(--amber);
+    }
+    .milestone .ms-header { display: flex; align-items: baseline; gap: 10px; margin-bottom: 4px; }
+    .milestone .ms-tag {
+      background: var(--brown);
+      color: white;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+    .milestone .ms-time { font-size: 12px; color: var(--text-muted); }
+    .milestone .ms-title { font-weight: 700; font-size: 14px; color: var(--text); }
+    .milestone .ms-desc { font-size: 12.5px; color: var(--text-muted); margin-top: 2px; }
+
+    /* ── Checklist ── */
+    .checklist { list-style: none; padding: 0; margin-bottom: 16px; }
+    .checklist li {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13.5px;
+    }
+    .checklist li:last-child { border-bottom: none; }
+    .check { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+    .check.done { color: var(--green); }
+    .check.todo { color: var(--text-muted); }
+
+    /* ── DB schema ── */
+    .db-schema {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .db-table {
+      background: white;
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .db-table .db-header {
+      background: var(--brown);
+      color: white;
+      padding: 10px 16px;
+      font-weight: 700;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .db-table .db-header span { font-size: 16px; }
+    .db-table .db-fields { padding: 8px 0; }
+    .db-field {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 5px 16px;
+      font-size: 12px;
+      gap: 8px;
+    }
+    .db-field:hover { background: var(--cream); }
+    .db-field .fname { font-family: Consolas, monospace; color: var(--brown-mid); }
+    .db-field .ftype { color: var(--text-muted); font-size: 11px; }
+    .db-field .fnote { font-size: 11px; color: var(--text-muted); }
+    .db-field .req-tag {
+      font-size: 10px; font-weight: 700;
+      background: #FDE8E7; color: #C0392B;
+      padding: 1px 5px; border-radius: 3px;
+      flex-shrink: 0;
+    }
+
+    /* ── footer ── */
+    footer {
+      margin-top: 60px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    /* ── Print ── */
+    @media print {
+      nav.toc { display: none; }
+      main { padding: 24px; max-width: 100%; }
+    }
+
+    @media (max-width: 900px) {
+      nav.toc { display: none; }
+      main { padding: 24px 20px; }
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+
+<!-- ── Sidebar ── -->
+<nav class="toc">
+  <div class="toc-logo">
+    <div class="brand">🍺 精酿啤酒一站式供应链<br>微信小程序产品计划书</div>
+    <div class="version">v2.5 · 2026年5月</div>
+  </div>
+  <a href="#s1" class="h2">一、项目背景与目标</a>
+  <a href="#s1-1" class="h3">1.1 业务背景</a>
+  <a href="#s1-2" class="h3">1.2 为什么选择小程序</a>
+  <a href="#s1-3" class="h3">1.3 建设目标</a>
+  <a href="#s1-4" class="h3">1.4 一期范围</a>
+  <a href="#s2" class="h2">二、整体架构设计</a>
+  <a href="#s2-1" class="h3">2.1 用户角色</a>
+  <a href="#s2-2" class="h3">2.2 页面总览</a>
+  <a href="#s3" class="h2">三、功能模块详解</a>
+  <a href="#s3-1" class="h3">3.1 首页</a>
+  <a href="#s3-2" class="h3">3.2 产品展示</a>
+  <a href="#s3-3" class="h3">3.3 合作方案</a>
+  <a href="#s3-4" class="h3">3.4 合作意向登记</a>
+  <a href="#s3-5" class="h3">3.5 我的</a>
+  <a href="#s3-6" class="h3">3.6 在线咨询</a>
+  <a href="#s3-7" class="h3">3.7 供应商后台（B端）</a>
+  <a href="#s4" class="h2">四、底部 TabBar</a>
+  <a href="#s5" class="h2">五、微信生态能力</a>
+  <a href="#s5-1" class="h3">5.1 登录与鉴权</a>
+  <a href="#s5-2" class="h3">5.2 图片上传</a>
+  <a href="#s5-3" class="h3">5.3 订阅消息</a>
+  <a href="#s5-4" class="h3">5.4 位置 / 分享 / 客服</a>
+  <a href="#s6" class="h2">六、技术架构</a>
+  <a href="#s7" class="h2">七、数据库设计</a>
+  <a href="#s8" class="h2">八、UI 设计规范</a>
+  <a href="#s9" class="h2">九、上线里程碑</a>
+  <a href="#s10" class="h2">十、注册前置条件</a>
+  <a href="#s11" class="h2">十一、基础设施成本</a>
+  <a href="#s12" class="h2">十二、待确认事项</a>
+</nav>
+
+<!-- ── Main ── -->
+<main>
+
+<!-- Cover -->
+<div class="cover">
+  <div class="tag">产品计划书 v2.5</div>
+  <h1>精酿啤酒<span>一站式供应链</span><br>微信小程序</h1>
+  <div class="subtitle">品牌展示 · 产品展示 · 合作意向获客 · 产品自管理</div>
+  <div class="meta">
+    <div class="meta-item"><strong>版本</strong>v2.5</div>
+    <div class="meta-item"><strong>日期</strong>2026年5月</div>
+    <div class="meta-item"><strong>品牌</strong>精酿啤酒一站式供应链</div>
+    <div class="meta-item"><strong>负责人</strong>待填写</div>
+  </div>
+</div>
+
+<!-- ── 一 ── -->
+<h2 id="s1"><span class="num">一</span>项目背景与目标</h2>
+
+<h3 id="s1-1">1.1 业务背景</h3>
+<p>本项目为<strong>精酿啤酒一站式供应链</strong>打造专属微信小程序，核心客户群体为宵夜档、大排档及小型餐饮档口老板。</p>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>业务类型</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td>桶装鲜啤配送</td><td>按需定期送货上门（珠三角当日达，其他地区走物流）</td></tr>
+    <tr><td>设备提供</td><td>打酒机、啤酒车；支持<strong>出售</strong>或<strong>租赁</strong>两种方式，客户按需选择</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3 id="s1-2">1.2 为什么选择微信小程序</h3>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>对比维度</th><th>网页版</th><th>微信小程序</th></tr></thead>
+  <tbody>
+    <tr><td>触达方式</td><td>需用户主动搜索/记住网址</td><td>扫码、搜索、好友分享即可打开</td></tr>
+    <tr><td>用户门槛</td><td>需注册账号才能使用</td><td><strong>无需注册/登录即可浏览全部内容</strong></td></tr>
+    <tr><td>分享获客</td><td>分享链接体验差</td><td>分享卡片，好友点击直接进入</td></tr>
+    <tr><td>消息触达</td><td>无法主动推送</td><td>订阅消息（新意向提醒等）</td></tr>
+    <tr><td>目标用户适配</td><td>需记住网址，门槛略高</td><td>档口老板日常用微信，完全匹配</td></tr>
+    <tr><td>在线支付</td><td>需额外接入</td><td>本期<strong>不接入</strong>；价格面议，线下结算</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="callout">
+  <strong>核心结论：</strong>目标客户（宵夜档/大排档老板）的主要数字工具就是微信，小程序比网页更贴近使用场景，获客成本更低，转化率更高。
+</div>
+
+<h3 id="s1-3">1.3 建设目标</h3>
+
+<div class="feature-grid">
+  <div class="feature-item">
+    <div class="icon">🍺</div>
+    <div class="title">品牌曝光</div>
+    <div class="desc">微信生态内裂变传播，让更多档口主动找到我们</div>
+  </div>
+  <div class="feature-item">
+    <div class="icon">⚡</div>
+    <div class="title">零门槛体验</div>
+    <div class="desc">打开即用，无需注册登录，任何人均可浏览产品与方案</div>
+  </div>
+  <div class="feature-item">
+    <div class="icon">📋</div>
+    <div class="title">线上获客</div>
+    <div class="desc">轻量表单提交合作意向，只需昵称+电话，极低填写门槛</div>
+  </div>
+  <div class="feature-item">
+    <div class="icon">⚙️</div>
+    <div class="title">产品自管理</div>
+    <div class="desc">供应商通过后台随时上下架产品，无需技术人员介入</div>
+  </div>
+</div>
+
+<h3 id="s1-4">1.4 一期范围与验收边界</h3>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>主题</th><th>一期（M2–M3 必验收）</th><th>M4（Should）</th><th>二期/Could</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>B端产品管理</td>
+      <td>产品列表 + 新增/编辑 + 上架/下架 + 排序 <span class="badge badge-must">Must</span></td>
+      <td>—</td>
+      <td>批量操作</td>
+    </tr>
+    <tr>
+      <td>B端入口</td>
+      <td>管理员 openid 提前写入库；登录后「我的」显示后台入口 <span class="badge badge-must">Must</span></td>
+      <td>—</td>
+      <td>独立管理 App</td>
+    </tr>
+    <tr>
+      <td>订阅消息</td>
+      <td>不强制，以 Toast + 站内刷新为准 <span class="badge badge-no">M2-3 不验收</span></td>
+      <td>新意向→供应商 <span class="badge badge-should">Should</span></td>
+      <td>其他通知类</td>
+    </tr>
+    <tr>
+      <td>优惠活动</td>
+      <td>不做，无发券/优惠券逻辑 <span class="badge badge-no">不做</span></td>
+      <td>—</td>
+      <td>活动页、优惠券 <span class="badge badge-could">Could</span></td>
+    </tr>
+    <tr>
+      <td>合作方案</td>
+      <td>前台读种子数据，无后台编辑 <span class="badge badge-must">Must</span></td>
+      <td>—</td>
+      <td>运营后台可视化改方案</td>
+    </tr>
+    <tr>
+      <td>小程序码</td>
+      <td>默认不做 <span class="badge badge-no">不做</span></td>
+      <td>可选加菜：带 source 参数 <span class="badge badge-could">Could</span></td>
+      <td>全渠道统计看板</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ── 二 ── -->
+<h2 id="s2"><span class="num">二</span>整体架构设计</h2>
+
+<h3 id="s2-1">2.1 用户角色</h3>
+
+<div class="module-row">
+  <div class="module-card">
+    <div class="header"><div class="icon">👤</div><div class="name">游客 / 普通用户（C端）</div></div>
+    <ul>
+      <li>无需登录，打开即可浏览全部内容</li>
+      <li>可浏览首页、产品、方案</li>
+      <li>可提交合作意向（仅昵称+电话必填）</li>
+      <li>主动登录后可在「我的」查看意向记录</li>
+    </ul>
+  </div>
+  <div class="module-card">
+    <div class="header"><div class="icon">🔧</div><div class="name">管理员（B端）</div></div>
+    <ul>
+      <li>openid 提前写入云数据库（role: admin）</li>
+      <li>在「我的」主动登录后显示后台入口</li>
+      <li>可进行产品增删改查与上下架</li>
+      <li>上传产品图片至微信云存储</li>
+    </ul>
+  </div>
+</div>
+
+<h3 id="s2-2">2.2 页面总览（站点地图）</h3>
+
+<div class="card">
+  <h4>TabBar（底部导航，无需登录）</h4>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
+    <div style="background:var(--amber-light);border:1.5px solid var(--amber);border-radius:8px;padding:8px 16px;font-size:13px;font-weight:700;color:var(--brown);">🏠 首页</div>
+    <div style="background:var(--amber-light);border:1.5px solid var(--amber);border-radius:8px;padding:8px 16px;font-size:13px;font-weight:700;color:var(--brown);">🍺 产品</div>
+    <div style="background:var(--amber-light);border:1.5px solid var(--amber);border-radius:8px;padding:8px 16px;font-size:13px;font-weight:700;color:var(--brown);">📋 方案</div>
+    <div style="background:var(--amber-light);border:1.5px solid var(--amber);border-radius:8px;padding:8px 16px;font-size:13px;font-weight:700;color:var(--brown);">📅 意向</div>
+    <div style="background:var(--amber-light);border:1.5px solid var(--amber);border-radius:8px;padding:8px 16px;font-size:13px;font-weight:700;color:var(--brown);">👤 我的</div>
+  </div>
+  <h4>子页面</h4>
+  <div style="font-size:13px;color:var(--text-muted);line-height:2;">
+    <code>/pages/products/detail</code> 产品详情 &nbsp;·&nbsp;
+    <code>/pages/about/index</code> 关于我们 &nbsp;·&nbsp;
+    <code>/pages/faq/index</code> 常见问题
+  </div>
+  <h4 style="margin-top:16px;">供应商后台（管理员专属）</h4>
+  <div style="font-size:13px;color:var(--text-muted);line-height:2;">
+    <code>/pages/admin/products/list</code> 产品列表 &nbsp;·&nbsp;
+    <code>/pages/admin/products/edit</code> 新增/编辑产品
+  </div>
+</div>
+
+<!-- ── 三 ── -->
+<h2 id="s3"><span class="num">三</span>功能模块详解</h2>
+
+<h3 id="s3-1">3.1 首页（品牌门面）</h3>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+  <div>
+    <div class="wireframe">┌─────────────────────────┐
+│  [LOGO] 品牌名  [电话📞] │ ← 顶部导航（固定）
+├─────────────────────────┤
+│   Banner 轮播图          │
+├─────────────────────────┤
+│  🍺鲜  ⚡快  🔧稳        │ ← 三大核心优势
+├─────────────────────────┤
+│ [了解方案][提交意向][联系] │ ← 快捷入口（横排）
+├─────────────────────────┤
+│  热门产品（横向滑动）     │
+│  [产品A] [产品B] [更多>] │
+├─────────────────────────┤
+│  300+档口 5000+桶/月     │ ← 合作数据（滚动动画）
+├─────────────────────────┤
+│  客户口碑（2-3条评价）    │
+├─────────────────────────┤
+│  [立即联系我们] 悬浮按钮  │ ← 底部固定
+└─────────────────────────┘</div>
+  </div>
+  <div>
+    <div class="card" style="height:100%;">
+      <h4>关键交互</h4>
+      <ul style="margin-top:8px;">
+        <li style="margin-bottom:8px;font-size:13px;">顶部电话图标 → <code>wx.makePhoneCall</code> 直接拨号</li>
+        <li style="margin-bottom:8px;font-size:13px;">悬浮按钮 → 半屏 ActionSheet：拨打电话 / 复制微信号 / 查看二维码</li>
+        <li style="font-size:13px;">合作数据数字滚动动画（进入视口时触发）</li>
+      </ul>
+      <h4 style="margin-top:16px;">无需登录</h4>
+      <p style="font-size:13px;color:var(--text-muted);">首页全部内容对游客开放，无任何登录拦截。</p>
+    </div>
+  </div>
+</div>
+
+<h3 id="s3-2">3.2 产品展示</h3>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+  <div>
+    <h4>产品列表页</h4>
+    <div class="wireframe">┌─────────────────────────┐
+│  🔍 搜索产品             │
+├─────────────────────────┤
+│ [全部][桶装鲜啤][打酒机]  │
+│ [啤酒车]                 │
+├─────────────────────────┤
+│ ┌──────┐ ┌──────┐       │
+│ │[图片]│ │[图片]│ ← 双列 │
+│ │产品名 │ │产品名 │       │
+│ │ 规格 │ │ 规格 │       │
+│ │ 面议 │ │ 面议 │       │
+│ └──────┘ └──────┘       │
+│    （下拉加载更多）       │
+└─────────────────────────┘</div>
+  </div>
+  <div>
+    <h4>产品详情页</h4>
+    <div class="wireframe">┌─────────────────────────┐
+│  ← 返回                 │
+├─────────────────────────┤
+│  产品图片轮播（多图横划）│
+├─────────────────────────┤
+│  产品名称               │
+│  规格：30L / 50L        │
+│  参考价格：面议          │
+├─────────────────────────┤
+│  供货方式：✓出售 ✓租赁  │
+├─────────────────────────┤
+│  产品特点 / 产品详情     │
+├─────────────────────────┤
+│  [一键咨询]  [立即预约]  │
+└─────────────────────────┘</div>
+  </div>
+</div>
+
+<h3 id="s3-3">3.3 合作方案页</h3>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+  <div class="wireframe">┌─────────────────────────┐
+│  选择适合你的合作方案    │
+├─────────────────────────┤
+│ ← [基础版][标准版][旗舰] │  ← 方案切换标签
+├─────────────────────────┤
+│ ┌───────────────────┐   │
+│ │  标准版            │   │
+│ │  💰 免押金起步     │   │
+│ │  ✓ 每周2次配送     │   │
+│ │  ✓ 提供打酒机1台   │   │
+│ │  ✓ 48h维修响应     │   │
+│ │  [我要选择这个方案] │   │
+│ └───────────────────┘   │
+├─────────────────────────┤
+│  方案对比表（横向滑动）  │
+│  方案 |基础 |标准 |旗舰  │
+│  配送 |1/周 |2/周 |每天  │
+│  酒机 | 无  | ✓   | ✓   │
+│  响应 |72h  |48h  | 4h  │
+├─────────────────────────┤
+│  🍺 啤酒车独立选配说明   │
+└─────────────────────────┘</div>
+  <div class="card">
+    <h4>重要说明</h4>
+    <ul style="margin-top:8px;">
+      <li style="margin-bottom:8px;font-size:13px;">啤酒车独立选配，<strong>不与任何方案强绑定</strong></li>
+      <li style="margin-bottom:8px;font-size:13px;">价格面议，系统内不维护成交价确认流程</li>
+      <li style="font-size:13px;">一期方案内容由种子数据初始化，<strong>不提供后台编辑页</strong></li>
+    </ul>
+    <div class="callout" style="margin-top:16px;">
+      啤酒车出售/租赁具体价格待业务确认后填入方案描述。
+    </div>
+  </div>
+</div>
+
+<h3 id="s3-4">3.4 合作意向登记</h3>
+
+<div class="callout">
+  <strong>体验优先：</strong>无需登录即可提交。仅昵称与联系电话为必填，其余字段全部选填，最大程度降低填写门槛。
+</div>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>字段</th><th>必填</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td>您的昵称</td><td><span class="badge badge-req">必填</span></td><td>联系人称呼</td></tr>
+    <tr><td>联系电话</td><td><span class="badge badge-req">必填</span></td><td>供应商回电联系，前端校验格式</td></tr>
+    <tr><td>档口地址</td><td><span class="badge badge-opt">选填</span></td><td>支持 <code>wx.getLocation()</code> 定位自动填写，拒绝授权不影响提交</td></tr>
+    <tr><td>营业类型</td><td><span class="badge badge-opt">选填</span></td><td>宵夜档 / 大排档 / 夜市摊 / 其他</td></tr>
+    <tr><td>月均啤酒销量</td><td><span class="badge badge-opt">选填</span></td><td>50桶以下 / 50-100桶 / 100桶以上</td></tr>
+    <tr><td>感兴趣的方案</td><td><span class="badge badge-opt">选填</span></td><td>基础版 / 标准版 / 旗舰版 / 还没想好</td></tr>
+    <tr><td>是否需要啤酒车</td><td><span class="badge badge-opt">选填</span></td><td>不需要 / 需要购买 / 需要租赁</td></tr>
+    <tr><td>配送区域</td><td><span class="badge badge-opt">选填</span></td><td>珠三角（当日达）/ 其他省市（走物流）</td></tr>
+    <tr><td>备注</td><td><span class="badge badge-opt">选填</span></td><td>自由填写</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="card">
+  <h4>提交逻辑</h4>
+  <ul style="margin-top:8px;">
+    <li style="font-size:13px;margin-bottom:6px;">仅校验昵称与手机号，其余字段为空时正常写入（留空）</li>
+    <li style="font-size:13px;margin-bottom:6px;">数据写入云开发数据库 <code>customers</code> 集合</li>
+    <li style="font-size:13px;margin-bottom:6px;"><strong>已登录</strong>时附带 <code>openid</code> 关联记录，登录后可在「我的」查看</li>
+    <li style="font-size:13px;margin-bottom:6px;"><strong>未登录</strong>时匿名写入（无 openid，「我的」不显示该条）</li>
+    <li style="font-size:13px;">提交成功 → Toast「已提交，我们会尽快联系您」</li>
+  </ul>
+</div>
+
+<h3 id="s3-5">3.5 我的（个人中心）</h3>
+
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px;">
+  <div>
+    <h4 style="margin-bottom:8px;text-align:center;font-size:12px;color:var(--text-muted);">未登录状态</h4>
+    <div class="wireframe" style="font-size:11px;">┌─────────────────┐
+│ [○] 点击登录    │ ← 点击发起授权
+│ 登录后查看记录  │
+├─────────────────┤
+│ 联系我们        │
+│ 📞 拨打电话  >  │
+│ 💬 微信客服  >  │
+├─────────────────┤
+│ 关于            │
+│ 📄 关于我们  >  │
+│ ❓ 常见问题  >  │
+└─────────────────┘</div>
+  </div>
+  <div>
+    <h4 style="margin-bottom:8px;text-align:center;font-size:12px;color:var(--text-muted);">已登录（普通用户）</h4>
+    <div class="wireframe" style="font-size:11px;">┌─────────────────┐
+│ [头像] 微信昵称 │
+├─────────────────┤
+│ 我的记录        │
+│ 📋 合作意向  >  │
+├─────────────────┤
+│ 联系我们        │
+│ 📞 拨打电话  >  │
+│ 💬 微信客服  >  │
+├─────────────────┤
+│ 关于            │
+│ 📄 关于我们  >  │
+│ ❓ 常见问题  >  │
+└─────────────────┘</div>
+  </div>
+  <div>
+    <h4 style="margin-bottom:8px;text-align:center;font-size:12px;color:var(--text-muted);">已登录（管理员）</h4>
+    <div class="wireframe" style="font-size:11px;">┌─────────────────┐
+│ [头像] 昵称     │
+│        [管理员] │
+├─────────────────┤
+│ 我的记录        │
+│ 📋 合作意向  >  │
+├─────────────────┤
+│ 联系我们        │
+│ 📞 拨打电话  >  │
+│ 💬 微信客服  >  │
+├─────────────────┤
+│ 关于            │
+│ 📄 关于我们  >  │
+│ ❓ 常见问题  >  │
+├─────────────────┤
+│ ⚙️ 供应商后台  >│ ← 管理员专属
+└─────────────────┘</div>
+  </div>
+</div>
+
+<h3 id="s3-6">3.6 在线咨询</h3>
+
+<div class="callout">
+  核心能力：微信客服组件（<code>open-type="contact"</code>）。用户点击后直接在微信内与供应商展开对话，无需跳出小程序、无需复制微信号。
+</div>
+
+<h4>入口分布（全局覆盖）</h4>
+
+<div class="feature-grid" style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr));margin-bottom:20px;">
+  <div class="feature-item">
+    <div class="icon">🏠</div>
+    <div class="title">首页</div>
+    <div class="desc">底部悬浮按钮点击弹出咨询方式选择</div>
+  </div>
+  <div class="feature-item">
+    <div class="icon">🍺</div>
+    <div class="title">产品详情</div>
+    <div class="desc">底部固定栏「一键咨询」直接触发</div>
+  </div>
+  <div class="feature-item">
+    <div class="icon">📋</div>
+    <div class="title">合作方案</div>
+    <div class="desc">方案卡片「咨询详情」按钮</div>
+  </div>
+  <div class="feature-item">
+    <div class="icon">👤</div>
+    <div class="title">我的</div>
+    <div class="desc">「联系我们」区域展示全部联系方式</div>
+  </div>
+</div>
+
+<h4>咨询方式弹层（ActionSheet）</h4>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+  <div>
+    <div class="wireframe" style="font-size:12px;">┌─────────────────────────┐
+│                         │
+│  ┌───────────────────┐  │
+│  │   联系供应商       │  │
+│  ├───────────────────┤  │
+│  │  💬 微信在线咨询   │  │  ← open-type="contact"
+│  ├───────────────────┤  │
+│  │  📞 拨打电话       │  │  ← wx.makePhoneCall
+│  ├───────────────────┤  │
+│  │  📋 复制微信号     │  │  ← wx.setClipboardData
+│  ├───────────────────┤  │
+│  │  取消             │  │
+│  └───────────────────┘  │
+└─────────────────────────┘</div>
+  </div>
+  <div class="card">
+    <h4>交互规则</h4>
+    <ul style="margin-top:8px;">
+      <li style="font-size:13px;margin-bottom:6px;">点击<strong>「微信在线咨询」</strong>→ 触发 <code>&lt;button open-type="contact"&gt;</code>，直接进入微信客服对话</li>
+      <li style="font-size:13px;margin-bottom:6px;">点击<strong>「拨打电话」</strong>→ <code>wx.makePhoneCall</code>，一键拨号</li>
+      <li style="font-size:13px;margin-bottom:6px;">点击<strong>「复制微信号」</strong>→ <code>wx.setClipboardData</code>，复制后 Toast 提示「微信号已复制」</li>
+      <li style="font-size:13px;">弹层为半屏 ActionSheet，点击蒙层/「取消」关闭</li>
+    </ul>
+  </div>
+</div>
+
+<h4>微信客服配置</h4>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>配置项</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td>开通条件</td><td>在微信公众平台 → 功能 → 微信客服中绑定客服微信号（支持个人微信）</td></tr>
+    <tr><td>组件用法</td><td><code>&lt;button open-type="contact" session-from="页面标识"&gt;在线咨询&lt;/button&gt;</code></td></tr>
+    <tr><td>session-from</td><td>传入页面来源标识（如 <code>product_detail</code>、<code>homepage</code>），方便客服识别用户场景</td></tr>
+    <tr><td>客服响应</td><td>客服在微信「微信客服」App 内回复，消息推送至用户微信通知</td></tr>
+    <tr><td>离线处理</td><td>客服离线时用户可留言，客服上线后回复</td></tr>
+  </tbody>
+</table>
+</div>
+
+<pre><code>&lt;!-- UniApp 写法 --&gt;
+&lt;button
+  open-type="contact"
+  session-from="product_detail"
+  :show-message-card="true"
+  send-message-title="我想咨询这款产品"
+  send-message-path="/pages/products/detail?id={{productId}}"
+  send-message-img="{{product.cover_image}}"
+&gt;
+  💬 在线咨询
+&lt;/button&gt;</code></pre>
+
+<h3 id="s3-7">3.7 供应商管理后台（B端）</h3>
+
+<div class="callout">
+  通过「我的」页面底部入口进入，<strong>仅管理员 openid 可见此入口</strong>。管理员 openid 由运营人员直接在云开发控制台写入 users 集合，无需开发介入。
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+  <div>
+    <h4>产品列表页</h4>
+    <div class="wireframe" style="font-size:11.5px;">┌──────────────────────────┐
+│  ← 产品管理  [+ 新增]    │
+├──────────────────────────┤
+│  [全部][上架中][已下架]   │
+├──────────────────────────┤
+│ ┌────────────────────┐   │
+│ │[图] 桶装精酿 30L   │   │
+│ │     上架中  排序:1 │   │
+│ │     [编辑] [下架]  │   │
+│ └────────────────────┘   │
+│ ┌────────────────────┐   │
+│ │[图] 精酿打酒机     │   │
+│ │     已下架  排序:2 │   │
+│ │     [编辑] [上架]  │   │
+│ └────────────────────┘   │
+└──────────────────────────┘</div>
+  </div>
+  <div>
+    <h4>新增/编辑产品页</h4>
+    <div class="wireframe" style="font-size:11.5px;">┌──────────────────────────┐
+│  ← 新增产品              │
+├──────────────────────────┤
+│  产品主图 *              │
+│  ┌─────────┐             │
+│  │ [+上传] │← wx.cloud   │
+│  └─────────┘  uploadFile │
+│  详情图（最多4张）        │
+│  [+][+][+][+]            │
+│                          │
+│  产品名称 *              │
+│  产品分类 * [桶装鲜啤▼]  │
+│  规格说明                │
+│  参考价格                │
+│  供货方式: ○出售 ○租赁   │
+│  产品描述                │
+│  标签 [热销][新品][推荐] │
+│  排序权重                │
+│                          │
+│  ○立即上架  ○暂存草稿    │
+│  [       保存       ]    │
+└──────────────────────────┘</div>
+  </div>
+</div>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>功能</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td>产品列表</td><td>查看所有产品，支持按状态筛选（上架中/已下架）</td></tr>
+    <tr><td>新增产品</td><td>填写名称、分类、规格、描述；上传主图 + 最多4张详情图</td></tr>
+    <tr><td>编辑产品</td><td>修改任意字段，实时更新前台展示</td></tr>
+    <tr><td>上架/下架</td><td>一键切换，前台实时同步，无需技术人员操作</td></tr>
+    <tr><td>产品排序</td><td>设置 <code>sort_order</code> 权重控制前台展示顺序</td></tr>
+    <tr><td>图片上传</td><td><code>wx.chooseMedia</code> → <code>wx.cloud.uploadFile</code> → 返回 <code>fileID</code> 写库</td></tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ── 四 ── -->
+<h2 id="s4"><span class="num">四</span>底部 TabBar 设计</h2>
+
+<div class="card" style="text-align:center;">
+  <div style="display:inline-flex;gap:0;border-radius:12px;overflow:hidden;box-shadow:var(--shadow);margin-bottom:12px;">
+    <div style="padding:16px 24px;background:white;text-align:center;border-right:1px solid var(--border);">
+      <div style="font-size:22px;margin-bottom:4px;">🏠</div>
+      <div style="font-size:12px;color:var(--text-muted);">首页</div>
+    </div>
+    <div style="padding:16px 24px;background:white;text-align:center;border-right:1px solid var(--border);">
+      <div style="font-size:22px;margin-bottom:4px;">🍺</div>
+      <div style="font-size:12px;color:var(--text-muted);">产品</div>
+    </div>
+    <div style="padding:16px 24px;background:white;text-align:center;border-right:1px solid var(--border);">
+      <div style="font-size:22px;margin-bottom:4px;">📋</div>
+      <div style="font-size:12px;color:var(--text-muted);">方案</div>
+    </div>
+    <div style="padding:16px 24px;background:white;text-align:center;border-right:1px solid var(--border);">
+      <div style="font-size:22px;margin-bottom:4px;">📅</div>
+      <div style="font-size:12px;color:var(--text-muted);">预约</div>
+    </div>
+    <div style="padding:16px 24px;background:white;text-align:center;">
+      <div style="font-size:22px;margin-bottom:4px;">👤</div>
+      <div style="font-size:12px;color:var(--amber);font-weight:700;">我的</div>
+    </div>
+  </div>
+  <p style="font-size:13px;color:var(--text-muted);">全部 Tab 无需登录即可访问。选中色：琥珀金 <code>#F5A623</code>，默认色：<code>#999</code></p>
+</div>
+
+<!-- ── 五 ── -->
+<h2 id="s5"><span class="num">五</span>微信生态能力集成</h2>
+
+<h3 id="s5-1">5.1 用户登录与管理员鉴权</h3>
+
+<div class="flow">
+  <div class="flow-step">
+    <div class="flow-left"><div class="flow-dot">1</div><div class="flow-line"></div></div>
+    <div class="flow-content">
+      <div class="step-title">用户进入「我的」页面</div>
+      <div class="step-desc">未登录时展示「点击登录」引导卡片，其他内容（联系、关于）正常显示</div>
+    </div>
+  </div>
+  <div class="flow-step">
+    <div class="flow-left"><div class="flow-dot">2</div><div class="flow-line"></div></div>
+    <div class="flow-content">
+      <div class="step-title">用户主动点击登录</div>
+      <div class="step-desc"><code>wx.getUserProfile()</code> 获取昵称/头像 + <code>wx.login()</code> 获取 code → 云函数换取 openid</div>
+    </div>
+  </div>
+  <div class="flow-step">
+    <div class="flow-left"><div class="flow-dot">3</div><div class="flow-line"></div></div>
+    <div class="flow-content">
+      <div class="step-title">openid 写入云数据库</div>
+      <div class="step-desc">首次登录时在 <code>users</code> 集合新建记录，已有记录则更新昵称/头像</div>
+    </div>
+  </div>
+  <div class="flow-step">
+    <div class="flow-left"><div class="flow-dot">4</div></div>
+    <div class="flow-content">
+      <div class="step-title">查询 role 字段，分支跳转</div>
+    </div>
+  </div>
+</div>
+<div class="flow-branch">
+  <div class="branch-box admin">
+    <div class="label">role === 'admin'</div>
+    显示「供应商后台」入口<br>
+    <small style="color:var(--text-muted);">openid 已提前写入库</small>
+  </div>
+  <div class="branch-box">
+    <div class="label">role === 'customer' / 无记录</div>
+    普通用户界面<br>显示我的意向记录
+  </div>
+</div>
+
+<div class="callout info">
+  <strong>管理员开通方式（无需技术人员）：</strong>在云开发控制台 → 数据库 → users 集合，手动新增一条记录：<br>
+  <code style="display:block;margin-top:6px;">{ "openid": "管理员微信openid", "role": "admin", "nickname": "小王" }</code>
+</div>
+
+<h3 id="s5-2">5.2 图片上传（微信云存储）</h3>
+
+<pre><code>// 1. 选择图片
+wx.chooseMedia({
+  count: 1,
+  mediaType: ['image'],
+  success(res) {
+    const tempFilePath = res.tempFiles[0].tempFilePath
+
+    // 2. 上传至微信云存储
+    wx.cloud.uploadFile({
+      cloudPath: `products/${Date.now()}-${Math.random()}.jpg`,
+      filePath: tempFilePath,
+      success(uploadRes) {
+        const fileID = uploadRes.fileID  // 存入数据库
+      }
+    })
+  }
+})
+
+// 3. 前台展示时获取临时访问 URL
+wx.cloud.getTempFileURL({
+  fileList: [fileID],
+  success(res) {
+    const url = res.fileList[0].tempFileURL
+  }
+})</code></pre>
+
+<h3 id="s5-3">5.3 订阅消息</h3>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>阶段</th><th>验收标准</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>M2–M3</td>
+      <td>意向提交以 <strong>Toast</strong> 为准，不强制订阅消息上线，PM/QA 不以此驳回核心流程</td>
+    </tr>
+    <tr>
+      <td>M4（Should）</td>
+      <td>完成模板申请：<strong>新意向 → 供应商</strong> 链路按模板验收</td>
+    </tr>
+    <tr>
+      <td>二期</td>
+      <td>优惠活动等通知类；一期不申请、不验收</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h3 id="s5-4">5.4 位置 / 分享 / 客服</h3>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>能力</th><th>场景</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>位置服务</td>
+      <td>意向表单档口地址</td>
+      <td><code>wx.getLocation()</code> 自动填写，<strong>拒绝授权不影响表单提交</strong></td>
+    </tr>
+    <tr>
+      <td>微信分享</td>
+      <td>分享给朋友 / 分享到朋友圈</td>
+      <td><code>onShareAppMessage</code> + <code>onShareTimeline</code>，卡片标题和封面图待填写</td>
+    </tr>
+    <tr>
+      <td>微信客服</td>
+      <td>「我的」→「联系我们」</td>
+      <td>接入微信客服组件，客户直接与供应商对话，无需跳出小程序</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ── 六 ── -->
+<h2 id="s6"><span class="num">六</span>技术架构</h2>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>层级</th><th>选择</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td>开发框架</td><td><strong>UniApp（Vue3）</strong></td><td>一套代码同时发布微信小程序 + H5；基于 Vue3，学习成本低</td></tr>
+    <tr><td>UI 组件库</td><td><strong>uni-ui</strong></td><td>成熟移动端组件，开箱即用</td></tr>
+    <tr><td>状态管理</td><td>Pinia</td><td>管理用户信息、产品缓存等全局状态</td></tr>
+    <tr><td>云服务</td><td><strong>腾讯云开发（CloudBase）</strong></td><td>数据库 + 云存储 + 云函数，与微信小程序原生打通</td></tr>
+    <tr><td>图片存储</td><td><strong>微信云存储</strong></td><td><code>wx.cloud.uploadFile</code>，fileID 直接存库，无需第三方 CDN</td></tr>
+    <tr><td>位置</td><td>微信原生 <code>wx.getLocation</code></td><td>获取坐标，无需额外地图 SDK</td></tr>
+    <tr><td>微信能力</td><td>微信原生 API</td><td>wx.login / wx.getUserProfile / 订阅消息 / 分享等</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h4>数据流概览</h4>
+<pre><code>游客（未登录）
+├── GET  products  → 云数据库（无需登录）
+├── GET  plans     → 云数据库（无需登录）
+└── POST customers → 云数据库（无 openid，匿名写入）
+
+已登录用户
+└── GET  customers → 云数据库（按 openid 查自己的意向记录）
+
+管理员（已登录 + role: admin）
+├── CRUD products            → 云数据库（产品增删改查）
+├── PATCH products.is_active → 云数据库（上架/下架）
+└── wx.cloud.uploadFile      → 云存储（上传产品图片）</code></pre>
+
+<!-- ── 七 ── -->
+<h2 id="s7"><span class="num">七</span>数据库设计（腾讯云开发）</h2>
+
+<div class="db-schema">
+
+  <div class="db-table">
+    <div class="db-header"><span>👤</span>users（用户集合）</div>
+    <div class="db-fields">
+      <div class="db-field"><span class="fname">_id</span><span class="ftype">string</span><span class="fnote">云开发自动生成</span></div>
+      <div class="db-field"><span class="fname">openid</span><span class="ftype">string</span><span class="fnote">微信 openid（唯一）</span></div>
+      <div class="db-field"><span class="fname">nickname</span><span class="ftype">string</span><span class="fnote">微信昵称</span></div>
+      <div class="db-field"><span class="fname">avatar_url</span><span class="ftype">string</span><span class="fnote">头像 URL</span></div>
+      <div class="db-field"><span class="fname">role</span><span class="ftype">string</span><span class="fnote">'customer' | 'admin'</span></div>
+      <div class="db-field"><span class="fname">created_at</span><span class="ftype">date</span><span class="fnote"></span></div>
+    </div>
+  </div>
+
+  <div class="db-table">
+    <div class="db-header"><span>🍺</span>products（产品集合）</div>
+    <div class="db-fields">
+      <div class="db-field"><span class="fname">_id</span><span class="ftype">string</span><span class="fnote">自动生成</span></div>
+      <div class="db-field"><span class="fname">name</span><span class="ftype">string</span><div class="req-tag">必填</div></div>
+      <div class="db-field"><span class="fname">category</span><span class="ftype">string</span><span class="fnote">beer/beer_machine/beer_car</span></div>
+      <div class="db-field"><span class="fname">description</span><span class="ftype">string</span><span class="fnote">产品描述（富文本）</span></div>
+      <div class="db-field"><span class="fname">spec</span><span class="ftype">string</span><span class="fnote">规格说明</span></div>
+      <div class="db-field"><span class="fname">price_range</span><span class="ftype">string</span><span class="fnote">"面议" 或区间</span></div>
+      <div class="db-field"><span class="fname">supply_type</span><span class="ftype">string</span><span class="fnote">sell/rent/both</span></div>
+      <div class="db-field"><span class="fname">cover_image</span><span class="ftype">string</span><span class="fnote">主图 fileID</span></div>
+      <div class="db-field"><span class="fname">images</span><span class="ftype">array</span><span class="fnote">详情图 fileID 数组</span></div>
+      <div class="db-field"><span class="fname">is_active</span><span class="ftype">boolean</span><span class="fnote">是否上架</span></div>
+      <div class="db-field"><span class="fname">sort_order</span><span class="ftype">number</span><span class="fnote">排序权重</span></div>
+      <div class="db-field"><span class="fname">tags</span><span class="ftype">array</span><span class="fnote">['热销','新品','推荐']</span></div>
+      <div class="db-field"><span class="fname">created_at / updated_at</span><span class="ftype">date</span><span class="fnote"></span></div>
+    </div>
+  </div>
+
+  <div class="db-table">
+    <div class="db-header"><span>📋</span>customers（意向集合）</div>
+    <div class="db-fields">
+      <div class="db-field"><span class="fname">_id</span><span class="ftype">string</span><span class="fnote">自动生成</span></div>
+      <div class="db-field"><span class="fname">openid</span><span class="ftype">string</span><span class="fnote">已登录时写入，否则空</span></div>
+      <div class="db-field"><span class="fname">nickname</span><span class="ftype">string</span><div class="req-tag">必填</div></div>
+      <div class="db-field"><span class="fname">phone</span><span class="ftype">string</span><div class="req-tag">必填</div></div>
+      <div class="db-field"><span class="fname">address</span><span class="ftype">string</span><span class="fnote">档口地址（选填）</span></div>
+      <div class="db-field"><span class="fname">location</span><span class="ftype">object</span><span class="fnote">{latitude,longitude}（选填）</span></div>
+      <div class="db-field"><span class="fname">biz_type</span><span class="ftype">string</span><span class="fnote">营业类型（选填）</span></div>
+      <div class="db-field"><span class="fname">daily_volume</span><span class="ftype">string</span><span class="fnote">月均销量（选填）</span></div>
+      <div class="db-field"><span class="fname">interested_plan</span><span class="ftype">string</span><span class="fnote">感兴趣方案（选填）</span></div>
+      <div class="db-field"><span class="fname">need_beer_car</span><span class="ftype">boolean</span><span class="fnote">啤酒车需求（选填）</span></div>
+      <div class="db-field"><span class="fname">beer_car_type</span><span class="ftype">string</span><span class="fnote">buy/rent（选填）</span></div>
+      <div class="db-field"><span class="fname">delivery_area</span><span class="ftype">string</span><span class="fnote">配送区域（选填）</span></div>
+      <div class="db-field"><span class="fname">notes</span><span class="ftype">string</span><span class="fnote">备注（选填）</span></div>
+      <div class="db-field"><span class="fname">created_at</span><span class="ftype">date</span><span class="fnote"></span></div>
+    </div>
+  </div>
+
+  <div class="db-table">
+    <div class="db-header"><span>📄</span>plans（合作方案集合）</div>
+    <div class="db-fields">
+      <div class="db-field"><span class="fname">_id</span><span class="ftype">string</span><span class="fnote">自动生成</span></div>
+      <div class="db-field"><span class="fname">name</span><span class="ftype">string</span><span class="fnote">基础版/标准版/旗舰版</span></div>
+      <div class="db-field"><span class="fname">level</span><span class="ftype">string</span><span class="fnote">basic/standard/premium</span></div>
+      <div class="db-field"><span class="fname">description</span><span class="ftype">string</span><span class="fnote">方案描述</span></div>
+      <div class="db-field"><span class="fname">features</span><span class="ftype">array</span><span class="fnote">包含项列表</span></div>
+      <div class="db-field"><span class="fname">excluded</span><span class="ftype">array</span><span class="fnote">不含项列表</span></div>
+      <div class="db-field"><span class="fname">is_active</span><span class="ftype">boolean</span><span class="fnote"></span></div>
+      <div class="db-field"><span class="fname">sort_order</span><span class="ftype">number</span><span class="fnote"></span></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── 八 ── -->
+<h2 id="s8"><span class="num">八</span>UI 设计规范</h2>
+
+<h3>8.1 视觉风格</h3>
+
+<div class="palette">
+  <div class="swatch"><div class="dot" style="background:#F5A623;"></div><div><div style="font-weight:700;font-size:13px;">琥珀金</div><code>#F5A623</code></div></div>
+  <div class="swatch"><div class="dot" style="background:#3E1C00;"></div><div><div style="font-weight:700;font-size:13px;">深棕</div><code>#3E1C00</code></div></div>
+  <div class="swatch"><div class="dot" style="background:#FFF8F0;border-color:#E8D8C8;"></div><div><div style="font-weight:700;font-size:13px;">乳白</div><code>#FFF8F0</code></div></div>
+  <div class="swatch"><div class="dot" style="background:#F7F3EE;border-color:#E8D8C8;"></div><div><div style="font-weight:700;font-size:13px;">米白背景</div><code>#F7F3EE</code></div></div>
+  <div class="swatch"><div class="dot" style="background:#E84C3D;"></div><div><div style="font-weight:700;font-size:13px;">橙红（强调）</div><code>#E84C3D</code></div></div>
+</div>
+
+<h3>8.2 关键组件规范</h3>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>组件</th><th>规范</th></tr></thead>
+  <tbody>
+    <tr><td>主按钮</td><td>琥珀金底色 <code>#F5A623</code>，圆角 8px，高 44px，深棕文字</td></tr>
+    <tr><td>次级按钮</td><td>白底 + 琥珀金描边</td></tr>
+    <tr><td>产品卡片</td><td>圆角 12px，白底，轻阴影（box-shadow: 0 2px 12px rgba(0,0,0,0.08)）</td></tr>
+    <tr><td>标签/Tag</td><td>热销=橙红，新品=绿色，圆角 4px</td></tr>
+    <tr><td>表单输入框</td><td>下划线风格，轻量感</td></tr>
+    <tr><td>必填标记</td><td>红色星号 <code>*</code> 置于字段名右侧</td></tr>
+    <tr><td>可交互最小区域</td><td>44px 高度（88rpx），确保手指可准确点击</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>8.3 移动端体验原则</h3>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>规范项</th><th>要求</th></tr></thead>
+  <tbody>
+    <tr><td>打开即用</td><td>首页、产品、方案无任何登录拦截，确保第一印象流畅</td></tr>
+    <tr><td>空状态</td><td>所有列表页无数据时展示图标+引导文案，禁止空白页</td></tr>
+    <tr><td>加载状态</td><td>网络请求期间展示骨架屏，禁止无反馈白屏</td></tr>
+    <tr><td>错误处理</td><td>网络失败显示"加载失败，点击重试"，禁止崩溃</td></tr>
+    <tr><td>表单校验</td><td>仅对必填项（昵称+电话）校验，错误红字提示在字段下方</td></tr>
+    <tr><td>操作反馈</td><td>提交/保存成功后显示 Toast（持续2秒）</td></tr>
+    <tr><td>危险操作</td><td>下架/删除前显示确认弹窗</td></tr>
+    <tr><td>安全区适配</td><td>兼容 iPhone 底部 Home Indicator</td></tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ── 九 ── -->
+<h2 id="s9"><span class="num">九</span>上线计划与里程碑</h2>
+
+<div class="timeline">
+  <div class="milestone">
+    <div class="ms-header">
+      <span class="ms-tag">M0</span>
+      <span class="ms-time">第 1 周</span>
+    </div>
+    <div class="ms-title">启动准备</div>
+    <div class="ms-desc">注册小程序主体；云开发环境初始化；管理员 openid 写入 users 集合</div>
+  </div>
+  <div class="milestone">
+    <div class="ms-header">
+      <span class="ms-tag">M1</span>
+      <span class="ms-time">第 2 周</span>
+    </div>
+    <div class="ms-title">框架就绪</div>
+    <div class="ms-desc">UniApp 初始化、TabBar 配置、路由注册、云开发连接验证</div>
+  </div>
+  <div class="milestone">
+    <div class="ms-header">
+      <span class="ms-tag">M2</span>
+      <span class="ms-time">第 4 周</span>
+    </div>
+    <div class="ms-title">C端可用</div>
+    <div class="ms-desc">首页、产品、方案、意向登记、我的（含登录/未登录两态）通过 QA 测试</div>
+  </div>
+  <div class="milestone">
+    <div class="ms-header">
+      <span class="ms-tag">M3</span>
+      <span class="ms-time">第 5 周</span>
+    </div>
+    <div class="ms-title">B端可用</div>
+    <div class="ms-desc">产品管理（列表/新增/编辑/上下架/图片上传）、管理员鉴权通过 QA 测试</div>
+  </div>
+  <div class="milestone">
+    <div class="ms-header">
+      <span class="ms-tag">M4</span>
+      <span class="ms-time">第 6 周</span>
+    </div>
+    <div class="ms-title">微信能力</div>
+    <div class="ms-desc">登录完善、订阅消息（新意向→供应商）、位置授权、微信分享通过 QA 测试</div>
+  </div>
+  <div class="milestone" style="padding-bottom:0;">
+    <div class="ms-header">
+      <span class="ms-tag" style="background:var(--green);">M5</span>
+      <span class="ms-time">第 7 周</span>
+    </div>
+    <div class="ms-title">正式上线</div>
+    <div class="ms-desc">全量真机测试、产品内容录入、提交微信审核、正式上线</div>
+  </div>
+</div>
+
+<!-- ── 十 ── -->
+<h2 id="s10"><span class="num">十</span>注册前置条件</h2>
+
+<ul class="checklist">
+  <li><span class="check todo">☐</span><div><strong>注册微信小程序主体</strong>：需营业执照（个体工商户即可），前往 mp.weixin.qq.com 注册</div></li>
+  <li><span class="check todo">☐</span><div><strong>选择服务类目</strong>：<code>生活服务 > 酒类销售</code> 或 <code>商家自营 > 食品/酒类</code></div></li>
+  <li><span class="check todo">☐</span><div><strong>资质准备</strong>：食品经营许可证或酒类零售/批发许可证（审核上传）</div></li>
+  <li><span class="check todo">☐</span><div><strong>开通腾讯云开发</strong>：在微信小程序后台开通云开发，创建环境，初始化数据库集合</div></li>
+  <li><span class="check todo">☐</span><div><strong>写入管理员 openid</strong>：在云开发控制台 → users 集合手动新增管理员记录（role: "admin"）</div></li>
+  <li><span class="check todo">☐</span><div><strong>配置微信订阅消息模板</strong>（M4 阶段）：在小程序后台申请「新意向→供应商」模板 ID</div></li>
+</ul>
+
+<!-- ── 十一 ── -->
+<h2 id="s11"><span class="num">十一</span>基础设施成本</h2>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>资源</th><th>方案</th><th>费用</th></tr></thead>
+  <tbody>
+    <tr><td>小程序注册</td><td>微信官方（个人/企业）</td><td>免费（企业认证 300 元/年）</td></tr>
+    <tr><td>云开发数据库</td><td>腾讯云开发免费套餐（2GB）</td><td><strong style="color:var(--green);">¥0</strong></td></tr>
+    <tr><td>云开发存储</td><td>微信云存储免费套餐（5GB）</td><td><strong style="color:var(--green);">¥0</strong></td></tr>
+    <tr><td>云开发云函数</td><td>腾讯云开发免费调用额度</td><td><strong style="color:var(--green);">¥0</strong></td></tr>
+    <tr><td><strong>合计</strong></td><td></td><td><strong>约 ¥0–300 / 年</strong></td></tr>
+  </tbody>
+</table>
+</div>
+<p style="font-size:13px;color:var(--text-muted);">开发人力是主要成本，基础设施对小体量业务完全免费。</p>
+
+<!-- ── 十二 ── -->
+<h2 id="s12"><span class="num">十二</span>待确认事项</h2>
+
+<h3>业务层面（已确认）</h3>
+<ul class="checklist">
+  <li><span class="check done">✅</span><div>品牌名称：精酿啤酒一站式供应链</div></li>
+  <li><span class="check done">✅</span><div>品牌 Logo：icon/logo.jpg</div></li>
+  <li><span class="check done">✅</span><div>配送区域：珠三角当日达；其他省市走物流</div></li>
+  <li><span class="check done">✅</span><div>设备供货方式：打酒机、啤酒车均支持出售和租赁两种方式</div></li>
+  <li><span class="check done">✅</span><div>啤酒车定位：独立选配，不与任何合作方案强绑定</div></li>
+  <li><span class="check done">✅</span><div>在线支付：本期不接入，价格面议，线下/转账结算</div></li>
+  <li><span class="check done">✅</span><div>无需登录即可浏览：全站游客可访问，登录仅用于查记录和管理后台</div></li>
+  <li><span class="check done">✅</span><div>意向表单仅昵称+电话必填：其余字段全部选填，降低用户填写门槛</div></li>
+  <li><span class="check done">✅</span><div>图片上传：使用微信云存储（wx.cloud.uploadFile），不依赖第三方 CDN</div></li>
+  <li><span class="check done">✅</span><div>管理员权限：openid 提前写入云数据库，登录后自动识别</div></li>
+  <li><span class="check done">✅</span><div>云开发技术栈：全面使用腾讯云开发，不使用第三方 BaaS</div></li>
+</ul>
+
+<h3>业务层面（待确认）</h3>
+<ul class="checklist">
+  <li><span class="check todo">☐</span><div><strong>三种合作方案的具体内容</strong>：基础版/标准版/旗舰版各自的配送频次、是否含打酒机、押金政策</div></li>
+  <li><span class="check todo">☐</span><div>确认啤酒车出售定价 / 租赁费用标准</div></li>
+  <li><span class="check todo">☐</span><div>确认物流配送的起订量要求和运费规则</div></li>
+  <li><span class="check todo">☐</span><div>确认首页品牌 Slogan 文案（如："鲜啤直供 · 珠三角当日达"）</div></li>
+  <li><span class="check todo">☐</span><div>确认首页合作数据展示的真实数字（合作档口数、月配送桶数等）</div></li>
+</ul>
+
+<h3>技术层面（待确认）</h3>
+<ul class="checklist">
+  <li><span class="check todo">☐</span><div>确认云开发环境 ID（开通后填入 UniApp 配置）</div></li>
+  <li><span class="check todo">☐</span><div>确认管理员微信账号 openid（在云开发控制台获取，手动写入 users 集合）</div></li>
+  <li><span class="check todo">☐</span><div>确认图片尺寸规范：主图比例（建议 1:1）、详情图数量上限（4张）</div></li>
+  <li><span class="check todo">☐</span><div>确认微信订阅消息模板申请（M4 阶段：新意向提醒→供应商）</div></li>
+</ul>
+
+<footer>
+  <p>精酿啤酒一站式供应链 · 微信小程序产品计划书 · v2.5 · 2026年5月</p>
+  <p style="margin-top:4px;">v2.5 变更：移除客户管理模块（B端仅保留产品管理）；全站无需登录即可浏览；意向表单仅昵称+电话必填；图片上传改为微信云存储；管理员 openid 提前写入数据库自动识别。</p>
+</footer>
+
+</main>
+</div>
+</body>
+</html>

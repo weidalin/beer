@@ -45,7 +45,7 @@ export function formatBizType(type: string | null | undefined): string {
   return bizTypeMap[type] || type
 }
 
-// 日均销量映射
+// 月均销量映射
 const volumeMap: Record<string, string> = {
   '<50': '50桶以下',
   '50-100': '50-100桶',

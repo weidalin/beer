@@ -1,5 +1,5 @@
 {
-    "name": "广东精酿啤酒一站式供应链",
+    "name": "精酿啤酒一站式供应链",
     "appid": "wxedd798eb9ee923af",
     "description": "桶装鲜啤直供 · 珠三角当日达 · 打酒机/啤酒车出售租赁",
     "versionName": "1.0.0",
@@ -45,6 +45,8 @@
         "appid": "wxedd798eb9ee923af",
         "libVersion": "3.7.14",
         "lazyCodeLoading": "requiredComponents",
+        "cloud": true,
+        "cloudfunctionRoot": "cloudfunctions/",
         "setting": {
             "urlCheck": false,
             "minified": true
@@ -52,7 +54,7 @@
         "usingComponents": true,
         "permission": {
             "scope.userLocation": {
-                "desc": "用于预约表单自动获取您的档口位置，方便准确配送"
+                "desc": "用于合作意向表单自动获取您的档口位置，方便准确配送"
             }
         },
         "requiredPrivateInfos": [
