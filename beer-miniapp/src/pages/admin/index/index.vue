@@ -1,5 +1,5 @@
 <template>
-  <view class="page-container" v-if="isAdmin">
+  <view class="page-container" v-if="userStore.isAdmin">
     <scroll-view
       scroll-y
       :refresher-enabled="true"
@@ -77,7 +77,6 @@ import { formatBizType, formatRelativeTime } from '../../../utils/format'
 import type { Customer } from '../../../types/database'
 
 const userStore = useUserStore()
-const isAdmin = userStore.isAdmin
 
 const { getTodayNewCount, fetchAllCustomers } = useCustomers()
 
@@ -115,7 +114,7 @@ async function refresh() {
 }
 
 onMounted(() => {
-  if (isAdmin) loadData()
+  if (userStore.isAdmin) loadData()
 })
 
 function goAddProduct() {

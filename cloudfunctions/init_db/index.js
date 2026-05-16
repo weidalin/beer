@@ -8,7 +8,7 @@
  *   方式一（推荐）：复制下方各集合的 JSON 数据，在云开发控制台
  *                   「数据库」→ 对应集合 → 「添加记录」手动粘贴。
  *
- *   方式二：部署为云函数 init_db：会先 `createCollection` 建 `plans` / `products` / `users`（已存在则忽略），再写入种子数据；管理员 users 会去重或升权。
+ *   方式二：部署为云函数 init_db：会先 `createCollection` 建 `plans` / `products` / `users` / `customers`（已存在则忽略），再写入种子数据；管理员 users 会去重或升权。
  *           管理员 openid 来源（合并去重，可多选）：
  *           - 下方 SEED_ADMIN_OPENIDS 预设（与本地 .env 的 ADMIN_OPEN_ID 对齐，可多人追加）；
  *           - callFunction data：adminOpenid 单字符串，或 adminOpenids 数组，或 adminOpenids 逗号分隔字符串；
@@ -62,7 +62,7 @@ exports.main = async (event = {}) => {
   const results = {}
 
   // ── 0. 确保集合存在（部分环境 add 不会隐式建表 → DATABASE_COLLECTION_NOT_EXIST / -502005）
-  const collectionNames = ['plans', 'products', 'users']
+  const collectionNames = ['plans', 'products', 'users', 'customers']
   results.ensureCollections = []
   for (const name of collectionNames) {
     try {
@@ -241,16 +241,27 @@ exports.main = async (event = {}) => {
  *
  *  集合       | 权限模板
  *  -----------|--------------------------------------------------
- *  products   | 所有用户可读，仅创建者及管理员可写
- *             | → 选「自定义安全规则」:
- *             |   { "read": true, "write": "auth.openid == doc.openid" }
+ *  products   | C 端列表需「所有人可读上架商品」，切勿用「仅创建者可读写」整表模板
+ *             |   若读权限被限制为本人文档，控制台会看到 where 自动带上 _openid，
+ *             |   种子数据由云函数写入，_openid 与小程序用户不一致 → 列表长期为空、
+ *             |   并提示为 (is_active, _openid, sort_order) 建索引，甚至查询超时。
+ *             | → 自定义安全规则示例（读全开；写仅限创建者，管理员可用云函数或改规则）:
+ *             |   { "read": true, "write": "auth.openid == doc._openid" }
+ *             |   （若需小程序端管理员改任意商品，需单独设计 write 条件或走云函数。）
  *  plans      | 所有用户可读
  *             |   { "read": true, "write": false }
- *  customers  | 所有用户可写（支持游客提交），创建者可读
+ *  customers  | 所有用户可写（支持游客提交），创建者可读；首次部署前须建集合
  *             |   { "read": "doc.openid == auth.openid", "write": true }
  *  users      | 创建者可读写
  *             |   { "read": "doc.openid == auth.openid",
  *             |     "write": "doc.openid == auth.openid" }
+ *
+ *  ── products 索引建议（云开发控制台 → 数据库 → products → 索引管理）────────
+ *  在 read: true 且 C 端查询为 is_active + orderBy(sort_order desc) 的前提下：
+ *    1) 分类为「全部」时：组合字段 is_active(升序) + sort_order(降序)
+ *    2) 带 category 时：is_active(升序) + category(升序) + sort_order(降序)
+ *  若短期内无法改权限、仍出现 is_active + _openid + sort_order，可临时按控制台
+ *  「一键创建索引」链接建立该组合索引以减轻告警与超时（根本仍应修正读权限）。
  *
  * ════════════════════════════════════════════════════════════════
  */

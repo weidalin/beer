@@ -40,10 +40,25 @@ export function useCustomers() {
       created_at: now
     }
 
-    const { _id } = await db.collection('customers').add({ data: payload })
-    return _id
+    try {
+      const { _id } = await db.collection('customers').add({ data: payload })
+      return _id
+    } catch (e) {
+      console.error('createIntention', e)
+      const raw =
+        e && typeof e === 'object' && 'errMsg' in e
+          ? String((e as { errMsg?: string }).errMsg)
+          : e instanceof Error
+            ? e.message
+            : String(e)
+      if (/502005|DATABASE_COLLECTION_NOT_EXIST|collection not exists|不存在/i.test(raw)) {
+        throw new Error(
+          '提交失败：云数据库中尚未创建 customers 集合。请在云开发控制台上传并执行 init_db 云函数，或手动新建集合。'
+        )
+      }
+      throw e
+    }
   }
-
   /**
    * C端：查询当前登录用户的意向记录
    */

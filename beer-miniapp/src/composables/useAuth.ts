@@ -2,6 +2,12 @@ import { callFunction, db } from '../lib/cloud'
 import { useUserStore } from '../stores/user'
 import type { User } from '../types/database'
 
+/** 用户点击授权后由 getUserProfile 传入，写入 users 集合 */
+export type WxLoginProfile = {
+  nickName?: string
+  avatarUrl?: string
+}
+
 function formatCloudCallError(err: unknown): string {
   if (err instanceof Error) {
     const m = err.message
@@ -40,9 +46,9 @@ export function useAuth() {
    * 1. wx.login 获取 code
    * 2. 调用云函数 wxLogin，code 换取 openid（服务端安全处理）
    * 3. 查询 users 集合，首次登录自动创建记录
-   * 4. role === 'admin' 时 userStore.isAdmin === true
+   * 4. role === 'admin' 或 .env 的 VITE_ADMIN_OPENIDS 命中时 isAdmin 为 true
    */
-  async function wxLogin(): Promise<void> {
+  async function wxLogin(profile?: WxLoginProfile): Promise<void> {
     userStore.isLoading = true
     try {
       // 1. 获取微信 code
@@ -96,12 +102,45 @@ export function useAuth() {
         }
       }
 
+      // 4. 若用户在同一次点击中授权了头像昵称，则写回数据库（需 users 写权限为本人可写）
+      const nick = profile?.nickName?.trim()
+      const avatar = profile?.avatarUrl?.trim()
+      if (nick || avatar) {
+        const patch: Record<string, unknown> = {}
+        if (nick) patch.nickname = nick
+        if (avatar) patch.avatar_url = avatar
+        await db.collection('users').doc(userRecord._id).update({ data: patch })
+        userRecord = {
+          ...userRecord,
+          ...(nick ? { nickname: nick } : {}),
+          ...(avatar ? { avatar_url: avatar } : {})
+        } as User
+      }
+
       userStore.setUser(userRecord)
     } catch (e) {
       console.error('wxLogin', e)
       throw new Error(formatCloudCallError(e))
     } finally {
       userStore.isLoading = false
+    }
+  }
+
+  /**
+   * 从云数据库刷新当前用户的 users 文档（role、昵称等），写入本地缓存。
+   * 用于：控制台把 role 改为 admin 后无需重新登录；与 VITE_ADMIN_OPENIDS 搭配使用。
+   */
+  async function syncUserFromCloud(): Promise<void> {
+    const openid = userStore.user?.openid
+    if (!openid) return
+    try {
+      const { data } = await db.collection('users').where({ openid }).limit(1).get()
+      const row = data?.[0] as unknown as User | undefined
+      if (row?._id) {
+        userStore.setUser(row)
+      }
+    } catch (e) {
+      console.warn('syncUserFromCloud', e)
     }
   }
 
@@ -120,5 +159,5 @@ export function useAuth() {
     uni.reLaunch({ url: '/pages/index/index' })
   }
 
-  return { wxLogin, silentLogin, logout }
+  return { wxLogin, silentLogin, logout, syncUserFromCloud }
 }

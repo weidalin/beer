@@ -91,19 +91,43 @@
 </template>
 
 <script setup lang="ts">
-import { onShareAppMessage } from '@dcloudio/uni-app'
+import { onShareAppMessage, onShow } from '@dcloudio/uni-app'
 import { useUserStore } from '../../stores/user'
 import { useAppStore } from '../../stores/app'
-import { useAuth } from '../../composables/useAuth'
+import { useAuth, type WxLoginProfile } from '../../composables/useAuth'
 
 const userStore = useUserStore()
 const appStore = useAppStore()
-const { wxLogin, logout: doLogout } = useAuth()
+const { wxLogin, logout: doLogout, syncUserFromCloud } = useAuth()
+
+onShow(() => {
+  if (userStore.isLoggedIn) {
+    void syncUserFromCloud()
+  }
+})
 
 async function doLogin() {
+  let profile: WxLoginProfile | undefined
+  try {
+    const prof = await new Promise<UniApp.GetUserProfileRes>((resolve, reject) => {
+      uni.getUserProfile({
+        desc: '用于展示昵称头像并保存到会员资料',
+        success: resolve,
+        fail: reject
+      })
+    })
+    const u = prof.userInfo
+    profile = {
+      nickName: u.nickName,
+      avatarUrl: u.avatarUrl
+    }
+  } catch {
+    // 用户拒绝授权时仍可仅用 openid 登录；昵称头像保持空或由后续业务补充
+  }
+
   try {
     uni.showLoading({ title: '登录中...' })
-    await wxLogin()
+    await wxLogin(profile)
     uni.hideLoading()
     uni.showToast({ title: '登录成功', icon: 'success' })
   } catch (e) {

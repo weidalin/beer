@@ -252,8 +252,9 @@ async function submit() {
     await createIntention(form)
     uni.showToast({ title: '已提交，我们会尽快联系您', icon: 'success', duration: 2000 })
     setTimeout(() => uni.navigateBack(), 2200)
-  } catch {
-    uni.showToast({ title: '提交失败，请重试', icon: 'none' })
+  } catch (e) {
+    const title = e instanceof Error ? e.message : '提交失败，请重试'
+    uni.showToast({ title, icon: 'none', duration: 4000 })
   } finally {
     submitting.value = false
   }

@@ -16,6 +16,15 @@
       </view>
     </view>
 
+    <!-- 管理员：在本页进入产品增删改（图片走云存储，见后台编辑页） -->
+    <view v-if="userStore.isAdmin" class="admin-strip">
+      <text class="admin-strip-label">管理</text>
+      <view class="admin-strip-btns">
+        <text class="admin-strip-btn" @tap="goAdminProductList">列表 / 上下架</text>
+        <text class="admin-strip-btn admin-strip-btn--primary" @tap="goAdminProductNew">新增产品</text>
+      </view>
+    </view>
+
     <!-- 分类标签栏 -->
     <scroll-view scroll-x class="category-bar">
       <view class="category-inner">
@@ -60,6 +69,12 @@
       <view v-else class="empty-state">
         <text class="empty-icon">🍺</text>
         <text class="empty-text">暂无产品，请稍后再来</text>
+        <text v-if="userStore.isAdmin" class="empty-hint">
+          后台无上架数据时会出现本提示。请部署并执行 init_db 写入示例数据，或使用「新增产品」添加。
+        </text>
+        <text v-else-if="userStore.isLoggedIn" class="empty-hint">
+          若云端已有上架产品仍为空，多半是 products 读权限限制了 _openid。请在云开发将 products 的 read 设为 true（所有用户可读上架数据）。
+        </text>
       </view>
 
       <!-- 加载更多 -->
@@ -72,14 +87,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { onLoad } from '@dcloudio/uni-app'
+import { ref } from 'vue'
+import { onLoad, onShow } from '@dcloudio/uni-app'
 import ProductCard from '../../components/ProductCard/index.vue'
 import FloatContact from '../../components/FloatContact/index.vue'
 import { useProducts } from '../../composables/useProducts'
+import { useUserStore } from '../../stores/user'
+import { useAuth } from '../../composables/useAuth'
 import type { Product } from '../../types/database'
 
 const { fetchProducts } = useProducts()
+const userStore = useUserStore()
+const { syncUserFromCloud } = useAuth()
 
 const keyword = ref('')
 const activeCategory = ref('all')
@@ -100,8 +119,22 @@ onLoad((options) => {
   if (options?.category) {
     activeCategory.value = options.category
   }
-  loadProducts(true)
 })
+
+onShow(async () => {
+  if (userStore.isLoggedIn) {
+    await syncUserFromCloud()
+  }
+  await loadProducts(true)
+})
+
+function goAdminProductList() {
+  uni.navigateTo({ url: '/pages/admin/products/list' })
+}
+
+function goAdminProductNew() {
+  uni.navigateTo({ url: '/pages/admin/products/edit' })
+}
 
 async function loadProducts(refresh = false) {
   if (refresh) {
@@ -177,6 +210,47 @@ function loadMore() {
   flex-direction: column;
   height: 100vh;
   background: $color-bg;
+}
+
+// 管理员条
+.admin-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-sm;
+  padding: $spacing-xs $spacing-md;
+  background: linear-gradient(90deg, #2d1500, #3e1c00);
+  border-bottom: 1rpx solid rgba(255, 255, 255, 0.12);
+
+  .admin-strip-label {
+    font-size: $font-xs;
+    color: rgba(255, 255, 255, 0.75);
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .admin-strip-btns {
+    display: flex;
+    gap: $spacing-xs;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .admin-strip-btn {
+    font-size: $font-xs;
+    color: rgba(255, 255, 255, 0.9);
+    padding: 8rpx 20rpx;
+    border-radius: $radius-full;
+    border: 1rpx solid rgba(255, 255, 255, 0.35);
+    background: rgba(255, 255, 255, 0.08);
+
+    &--primary {
+      background: $color-primary;
+      border-color: $color-primary;
+      color: $color-text-white;
+      font-weight: 600;
+    }
+  }
 }
 
 // 搜索框
@@ -256,6 +330,18 @@ function loadMore() {
   grid-template-columns: 1fr 1fr;
   gap: $spacing-sm;
   padding: $spacing-sm;
+}
+
+.empty-state {
+  .empty-hint {
+    display: block;
+    margin-top: $spacing-md;
+    padding: 0 $spacing-lg;
+    font-size: $font-xs;
+    color: $color-text-tertiary;
+    line-height: 1.6;
+    text-align: center;
+  }
 }
 
 // 骨架屏
