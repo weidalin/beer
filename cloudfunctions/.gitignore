@@ -1,1 +1,2 @@
 dist-zips/
+**/node_modules/

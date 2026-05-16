@@ -29,7 +29,7 @@
     "build:mp-qq": "uni build -p mp-qq",
     "build:mp-toutiao": "uni build -p mp-toutiao",
     "build:mp-harmony": "uni build -p mp-harmony",
-    "build:mp-weixin": "node scripts/sync-wx-appid.mjs && uni build -p mp-weixin && node scripts/inject-url-polyfill.mjs && node scripts/copy-cloudfunctions.mjs",
+    "build:mp-weixin": "node scripts/sync-wx-appid.mjs && uni build -p mp-weixin && node scripts/inject-url-polyfill.mjs && node scripts/install-cloudfunctions.mjs && node scripts/copy-cloudfunctions.mjs",
     "sync:wx-appid": "node scripts/sync-wx-appid.mjs",
     "build:mp-xhs": "uni build -p mp-xhs",
     "build:quickapp-webview": "uni build -p quickapp-webview",

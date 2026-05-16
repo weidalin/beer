@@ -30,7 +30,7 @@ function formatCloudCallError(err: unknown): string {
     return '云环境无效：请在 .env 配置 VITE_CLOUD_ENV_ID 并重新编译，或在开发者工具云开发选中正确环境'
   }
   if (msg.includes('FUNCTION_NOT_FOUND')) {
-    return '云函数未部署，请在云开发中上传 wxLogin'
+    return '云函数未部署，请在云开发中上传并部署 wxLogin、updateProfile、productAdmin'
   }
   if (msg.includes('云开发未初始化')) {
     return msg
@@ -102,19 +102,37 @@ export function useAuth() {
         }
       }
 
-      // 4. 若用户在同一次点击中授权了头像昵称，则写回数据库（需 users 写权限为本人可写）
+      // 4. 头像昵称写库走云函数（避免 init_db 创建的 users 文档 _openid 与当前用户不一致导致「更新失败」）
       const nick = profile?.nickName?.trim()
       const avatar = profile?.avatarUrl?.trim()
       if (nick || avatar) {
-        const patch: Record<string, unknown> = {}
-        if (nick) patch.nickname = nick
-        if (avatar) patch.avatar_url = avatar
-        await db.collection('users').doc(userRecord._id).update({ data: patch })
-        userRecord = {
-          ...userRecord,
-          ...(nick ? { nickname: nick } : {}),
-          ...(avatar ? { avatar_url: avatar } : {})
-        } as User
+        try {
+          const res = await callFunction<{ ok?: boolean; error?: string; user?: User }>(
+            'updateProfile',
+            {
+              nickname: nick || undefined,
+              avatar_url: avatar || undefined
+            }
+          )
+          if (res?.error) {
+            console.warn('updateProfile', res.error)
+          } else if (res?.user) {
+            userRecord = res.user as User
+          } else {
+            userRecord = {
+              ...userRecord,
+              ...(nick ? { nickname: nick } : {}),
+              ...(avatar ? { avatar_url: avatar } : {})
+            } as User
+          }
+        } catch (e) {
+          console.warn('updateProfile', e)
+          userRecord = {
+            ...userRecord,
+            ...(nick ? { nickname: nick } : {}),
+            ...(avatar ? { avatar_url: avatar } : {})
+          } as User
+        }
       }
 
       userStore.setUser(userRecord)

@@ -9,9 +9,13 @@ help:
 	@echo "  make build-h5    - 打包 H5（生产）"
 	@echo "  make type-check  - TypeScript 类型检查"
 	@echo "  make install     - 安装依赖"
+	@echo "  make cloudfunctions - 安装云函数 npm 依赖（wx-server-sdk）"
 
 install:
 	npm install
+
+cloudfunctions:
+	node scripts/install-cloudfunctions.mjs
 
 dev:
 	npm run dev:mp-weixin

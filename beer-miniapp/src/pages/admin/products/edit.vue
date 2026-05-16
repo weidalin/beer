@@ -18,7 +18,16 @@
         <!-- 产品名称 -->
         <view class="form-item">
           <text class="form-label">产品名称 <text class="required">*</text></text>
-          <input class="form-input" v-model="form.name" placeholder="输入产品名称" placeholder-class="form-placeholder" />
+          <input
+            class="form-input"
+            v-model="form.name"
+            placeholder="输入产品名称"
+            placeholder-class="form-placeholder"
+            confirm-type="done"
+            :adjust-position="true"
+            :hold-keyboard="false"
+            @confirm="blurKeyboard"
+          />
         </view>
 
         <!-- 产品分类 -->
@@ -35,13 +44,31 @@
         <!-- 规格说明 -->
         <view class="form-item">
           <text class="form-label">规格说明</text>
-          <input class="form-input" v-model="form.spec" placeholder="如：30L / 50L，或制冷功率1200W" placeholder-class="form-placeholder" />
+          <input
+            class="form-input"
+            v-model="form.spec"
+            placeholder="如：30L / 50L，或制冷功率1200W"
+            placeholder-class="form-placeholder"
+            confirm-type="done"
+            :adjust-position="true"
+            :hold-keyboard="false"
+            @confirm="blurKeyboard"
+          />
         </view>
 
         <!-- 参考价格 -->
         <view class="form-item">
           <text class="form-label">参考价格</text>
-          <input class="form-input" v-model="form.price_range" placeholder="如：面议 或 ¥800-1200/桶" placeholder-class="form-placeholder" />
+          <input
+            class="form-input"
+            v-model="form.price_range"
+            placeholder="如：面议 或 ¥800-1200/桶"
+            placeholder-class="form-placeholder"
+            confirm-type="done"
+            :adjust-position="true"
+            :hold-keyboard="false"
+            @confirm="blurKeyboard"
+          />
         </view>
 
         <!-- 供货方式（仅设备类显示） -->
@@ -67,7 +94,11 @@
             placeholder="详细描述产品特点、适用场景等..."
             placeholder-class="form-placeholder"
             :auto-height="true"
+            :show-confirm-bar="false"
+            :adjust-position="true"
+            :hold-keyboard="false"
             maxlength="1000"
+            @blur="blurKeyboard"
           />
         </view>
 
@@ -91,9 +122,13 @@
           <input
             class="form-input"
             v-model.number="form.sort_order"
-            type="number"
+            type="digit"
             placeholder="0"
             placeholder-class="form-placeholder"
+            confirm-type="done"
+            :adjust-position="true"
+            :hold-keyboard="false"
+            @confirm="blurKeyboard"
           />
         </view>
 
@@ -115,20 +150,18 @@
         </view>
       </view>
 
-      <view style="height: 160rpx;"></view>
+      <view class="scroll-bottom-spacer"></view>
     </scroll-view>
 
-    <!-- 底部保存按钮 -->
-    <view class="bottom-bar">
-      <button
-        class="btn-primary"
-        style="width: 100%;"
-        :loading="saving"
-        :disabled="saving"
-        @tap="save"
+    <!-- 底部保存：用 view 替代原生 button，避免抢焦点/弹出键盘 -->
+    <view class="bottom-bar" @touchstart.stop="blurKeyboard">
+      <view
+        class="btn-primary save-btn"
+        :class="{ 'save-btn--disabled': saving }"
+        @tap.stop="onSaveTap"
       >
         {{ saving ? '保存中...' : (isEdit ? '保存修改' : '创建产品') }}
-      </button>
+      </view>
     </view>
   </view>
 </template>
@@ -216,6 +249,16 @@ function validate(): string | null {
   return null
 }
 
+function blurKeyboard() {
+  uni.hideKeyboard()
+}
+
+function onSaveTap() {
+  if (saving.value) return
+  blurKeyboard()
+  void save()
+}
+
 async function save() {
   const err = validate()
   if (err) {
@@ -241,8 +284,14 @@ async function save() {
     setTimeout(() => {
       uni.navigateBack()
     }, 1200)
-  } catch {
-    uni.showToast({ title: '保存失败，请重试', icon: 'none' })
+  } catch (e) {
+    const title =
+      e instanceof Error
+        ? e.message.includes('无管理员')
+          ? `${e.message}，请部署 productAdmin 云函数`
+          : e.message
+        : '保存失败，请重试'
+    uni.showToast({ title, icon: 'none', duration: 4000 })
   } finally {
     saving.value = false
   }
@@ -257,7 +306,14 @@ async function save() {
   background: $color-bg;
 }
 
-.form-scroll { flex: 1; }
+.form-scroll {
+  flex: 1;
+  height: 0;
+}
+
+.scroll-bottom-spacer {
+  height: calc(200rpx + env(safe-area-inset-bottom));
+}
 
 .form-body {
   .form-item {
@@ -354,9 +410,19 @@ async function save() {
   bottom: 0;
   left: 0;
   right: 0;
+  z-index: 100;
   padding: $spacing-sm $spacing-md;
   padding-bottom: calc(#{$spacing-sm} + env(safe-area-inset-bottom));
   background: $color-bg-card;
   box-shadow: 0 -2rpx 16rpx rgba(0, 0, 0, 0.08);
+}
+
+.save-btn {
+  width: 100%;
+
+  &--disabled {
+    opacity: 0.65;
+    pointer-events: none;
+  }
 }
 </style>

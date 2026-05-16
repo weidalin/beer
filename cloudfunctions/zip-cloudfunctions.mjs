@@ -11,7 +11,7 @@ import os from 'os'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const cfRoot = __dirname
 const outDir = join(cfRoot, 'dist-zips')
-const names = ['wxLogin', 'init_db']
+const names = ['wxLogin', 'init_db', 'updateProfile', 'productAdmin']
 
 fs.mkdirSync(outDir, { recursive: true })
 
@@ -22,17 +22,21 @@ function zipOne(name) {
     console.warn(`[zip] 跳过 ${name}：缺少 index.js 或 package.json`)
     return
   }
+  if (!fs.existsSync(join(srcDir, 'node_modules', 'wx-server-sdk'))) {
+    console.log(`[zip] ${name} 安装依赖…`)
+    execSync('npm install --omit=dev', { cwd: srcDir, stdio: 'inherit' })
+  }
   if (fs.existsSync(outZip)) fs.rmSync(outZip, { force: true })
 
   if (os.platform() === 'win32') {
     const dest = outZip.replace(/'/g, "''")
-    const cmd = `Compress-Archive -LiteralPath index.js,package.json -DestinationPath '${dest}' -Force`
+    const cmd = `Compress-Archive -LiteralPath index.js,package.json,node_modules -DestinationPath '${dest}' -Force`
     execSync(`powershell.exe -NoProfile -Command "${cmd.replace(/"/g, '\\"')}"`, {
       cwd: srcDir,
       stdio: 'inherit'
     })
   } else {
-    execSync(`zip -j "${outZip}" index.js package.json`, { cwd: srcDir, stdio: 'inherit' })
+    execSync(`zip -r "${outZip}" index.js package.json node_modules`, { cwd: srcDir, stdio: 'inherit' })
   }
   console.log(`[zip] ${outZip}`)
 }

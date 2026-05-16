@@ -1,7 +1,14 @@
 import { ref } from 'vue'
-import { db } from '../lib/cloud'
+import { db, callFunction } from '../lib/cloud'
 import type { Product } from '../types/database'
 import type { ProductFilter } from '../types/api'
+
+type ProductAdminResult = { ok?: boolean; error?: string; product?: Product }
+
+function assertProductAdminOk(res: ProductAdminResult | undefined, fallback: string): void {
+  if (res?.error) throw new Error(res.error)
+  if (!res?.ok) throw new Error(fallback)
+}
 
 export function useProducts() {
   const products = ref<Product[]>([])
@@ -62,39 +69,44 @@ export function useProducts() {
     return (data || []) as unknown as Product[]
   }
 
-  /** B端：新增产品 */
+  /** B端：新增产品（走云函数，绕过「仅创建者可写」） */
   async function createProduct(product: Partial<Product>): Promise<Product> {
-    const now = new Date().toISOString()
-    const payload = {
-      ...product,
-      is_active: product.is_active ?? false,
-      sort_order: product.sort_order ?? 0,
-      tags: product.tags ?? [],
-      images: product.images ?? [],
-      created_at: now,
-      updated_at: now
-    }
-
-    const { _id } = await db.collection('products').add({ data: payload })
-    return { _id, ...payload } as unknown as Product
+    const res = await callFunction<ProductAdminResult>('productAdmin', {
+      action: 'create',
+      product
+    })
+    assertProductAdminOk(res, '创建失败')
+    if (!res?.product) throw new Error('创建失败')
+    return res.product
   }
 
   /** B端：更新产品 */
   async function updateProduct(id: string, updates: Partial<Product>): Promise<void> {
-    const payload: Record<string, unknown> = { ...updates as Record<string, unknown>, updated_at: new Date().toISOString() }
-    await db.collection('products').doc(id).update({ data: payload })
+    const res = await callFunction<ProductAdminResult>('productAdmin', {
+      action: 'update',
+      id,
+      updates
+    })
+    assertProductAdminOk(res, '更新失败')
   }
 
   /** B端：切换上下架状态 */
   async function toggleProductActive(id: string, isActive: boolean): Promise<void> {
-    await db.collection('products').doc(id).update({
-      data: { is_active: isActive, updated_at: new Date().toISOString() }
+    const res = await callFunction<ProductAdminResult>('productAdmin', {
+      action: 'toggleActive',
+      id,
+      isActive
     })
+    assertProductAdminOk(res, '操作失败')
   }
 
   /** B端：删除产品 */
   async function deleteProduct(id: string): Promise<void> {
-    await db.collection('products').doc(id).remove()
+    const res = await callFunction<ProductAdminResult>('productAdmin', {
+      action: 'delete',
+      id
+    })
+    assertProductAdminOk(res, '删除失败')
   }
 
   return {
