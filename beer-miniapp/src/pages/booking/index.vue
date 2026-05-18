@@ -1,11 +1,11 @@
 <template>
-  <view class="page-container">
-    <scroll-view scroll-y class="form-scroll">
-      <view class="form-header">
-        <text class="form-title">合作意向登记</text>
-        <text class="form-subtitle">仅需昵称和电话，其余全部选填</text>
-      </view>
+  <view class="page-container booking-root">
+    <view class="form-header">
+      <text class="form-title">合作意向登记</text>
+      <text class="form-subtitle">昵称与联系方式必填，其余选填（联系方式可填手机号或微信号）</text>
+    </view>
 
+    <form class="intention-form" @submit="onFormSubmit">
       <view class="form-body card" style="margin: 24rpx;">
         <!-- 昵称（必填） -->
         <view class="form-item">
@@ -13,23 +13,25 @@
           <input
             class="form-input"
             v-model="form.nickname"
+            name="nickname"
             placeholder="请输入您的称呼"
             placeholder-class="form-placeholder"
           />
         </view>
 
-        <!-- 联系电话（必填） -->
+        <!-- 联系方式（电话或微信号） -->
         <view class="form-item">
-          <text class="form-label">联系电话 <text class="required">*</text></text>
+          <text class="form-label">联系方式 <text class="required">*</text></text>
           <input
             class="form-input"
-            v-model="form.phone"
-            type="number"
-            maxlength="11"
-            placeholder="请输入手机号"
+            v-model="form.contact"
+            name="contact"
+            maxlength="64"
+            placeholder="手机号或微信号"
             placeholder-class="form-placeholder"
+            confirm-type="done"
           />
-          <text v-if="phoneError" class="field-error">{{ phoneError }}</text>
+          <text v-if="contactError" class="field-error">{{ contactError }}</text>
         </view>
 
         <!-- 档口地址（选填，支持定位） -->
@@ -40,10 +42,11 @@
               class="form-input"
               style="flex: 1;"
               v-model="form.address"
+              name="address"
               placeholder="详细地址（点击右侧图标自动定位）"
               placeholder-class="form-placeholder"
             />
-            <view class="locate-btn" @tap="getLocation">
+            <view class="locate-btn" @tap.stop="getLocation">
               <text class="locate-icon">📍</text>
             </view>
           </view>
@@ -136,45 +139,38 @@
           <textarea
             class="form-textarea"
             v-model="form.notes"
+            name="notes"
             placeholder="其他想说的，例如期望合作时间、特殊需求等"
             placeholder-class="form-placeholder"
             maxlength="300"
             :auto-height="true"
+            :show-confirm-bar="false"
           />
         </view>
       </view>
 
-      <view style="height: 160rpx;"></view>
-    </scroll-view>
-
-    <!-- 底部提交按钮 -->
-    <view class="bottom-bar">
-      <button
-        class="btn-primary"
-        style="width: 100%;"
-        :loading="submitting"
-        :disabled="submitting"
-        @tap="submit"
-      >
-        {{ submitting ? '提交中...' : '提交合作意向' }}
-      </button>
-    </view>
+      <view class="submit-section">
+        <button class="btn-primary submit-btn" form-type="submit" :disabled="submitting">
+          {{ submitting ? '提交中...' : '提交合作意向' }}
+        </button>
+      </view>
+    </form>
   </view>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
-import { onLoad } from '@dcloudio/uni-app'
+import { onLoad, onShow } from '@dcloudio/uni-app'
 import { useCustomers, type IntentionForm } from '../../composables/useCustomers'
 
 const { createIntention } = useCustomers()
 
 const submitting = ref(false)
-const phoneError = ref('')
+const contactError = ref('')
 
 const form = reactive<IntentionForm>({
   nickname: '',
-  phone: '',
+  contact: '',
   address: '',
   biz_type: undefined,
   daily_volume: undefined,
@@ -187,6 +183,18 @@ const form = reactive<IntentionForm>({
 onLoad((options) => {
   if (options?.plan) {
     form.interested_plan = options.plan as IntentionForm['interested_plan']
+  }
+})
+
+onShow(() => {
+  try {
+    const plan = uni.getStorageSync('intention_plan_prefill')
+    if (plan) {
+      form.interested_plan = plan as IntentionForm['interested_plan']
+      uni.removeStorageSync('intention_plan_prefill')
+    }
+  } catch {
+    /* ignore */
   }
 })
 
@@ -228,33 +236,58 @@ function getLocation() {
 }
 
 function validate(): boolean {
-  phoneError.value = ''
+  contactError.value = ''
   if (!form.nickname.trim()) {
     uni.showToast({ title: '请填写昵称', icon: 'none' })
     return false
   }
-  if (!form.phone.trim()) {
-    phoneError.value = '请填写联系电话'
-    return false
-  }
-  if (!/^1[3-9]\d{9}$/.test(form.phone.trim())) {
-    phoneError.value = '请填写正确的11位手机号'
+
+  if (!form.contact.trim()) {
+    contactError.value = '请填写联系方式'
     return false
   }
   return true
+}
+
+function onFormSubmit() {
+  if (submitting.value) return
+  uni.hideKeyboard()
+  void submit()
+}
+
+function resetForm() {
+  form.nickname = ''
+  form.contact = ''
+  form.address = ''
+  form.biz_type = undefined
+  form.daily_volume = undefined
+  form.interested_plan = undefined
+  form.need_beer_car = undefined
+  form.delivery_area = undefined
+  form.notes = ''
+  form.location = undefined
+  contactError.value = ''
 }
 
 async function submit() {
   if (!validate()) return
 
   submitting.value = true
+  uni.showLoading({ title: '提交中...', mask: true })
   try {
     await createIntention(form)
+    uni.hideLoading()
     uni.showToast({ title: '已提交，我们会尽快联系您', icon: 'success', duration: 2000 })
-    setTimeout(() => uni.navigateBack(), 2200)
+    resetForm()
+    uni.pageScrollTo({ scrollTop: 0, duration: 300 })
   } catch (e) {
-    const title = e instanceof Error ? e.message : '提交失败，请重试'
+    uni.hideLoading()
+    let title = e instanceof Error ? e.message : '提交失败，请重试'
+    if (title.length > 40) {
+      title = title.slice(0, 40) + '…'
+    }
     uni.showToast({ title, icon: 'none', duration: 4000 })
+    console.error('[submitIntention]', e)
   } finally {
     submitting.value = false
   }
@@ -262,15 +295,15 @@ async function submit() {
 </script>
 
 <style lang="scss" scoped>
-.page-container {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
+.booking-root.page-container {
+  min-height: 100vh;
   background: $color-bg;
+  /* 为底部 tabBar 留出空间，避免提交按钮被挡住 */
+  padding-bottom: calc(120rpx + env(safe-area-inset-bottom));
 }
 
-.form-scroll {
-  flex: 1;
+.intention-form {
+  display: block;
 }
 
 .form-header {
@@ -288,6 +321,7 @@ async function submit() {
   .form-subtitle {
     font-size: $font-base;
     color: rgba(255, 255, 255, 0.7);
+    line-height: 1.5;
   }
 }
 
@@ -393,14 +427,11 @@ async function submit() {
   }
 }
 
-.bottom-bar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: $spacing-sm $spacing-md;
-  padding-bottom: calc(#{$spacing-sm} + env(safe-area-inset-bottom));
-  background: $color-bg-card;
-  box-shadow: 0 -2rpx 16rpx rgba(0, 0, 0, 0.08);
+.submit-section {
+  margin: $spacing-md $spacing-md $spacing-lg;
+
+  .submit-btn {
+    width: 100%;
+  }
 }
 </style>

@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "openapi": ["phonenumber.getPhoneNumber"]
+  },
+  "timeout": 10,
+  "memorySize": 256
+}

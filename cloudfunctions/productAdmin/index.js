@@ -17,13 +17,19 @@ function parseOpenidList(str) {
 async function assertAdmin(openid) {
   if (!openid) throw new Error('未登录')
 
+  const { data } = await db.collection('users').where({ openid }).limit(1).get()
+  const user = data && data[0]
+  if (user && user.role === 'customer') {
+    throw new Error('无管理员权限')
+  }
+  if (user && user.role === 'admin') {
+    return
+  }
+
   const allow = new Set(SEED_ADMIN_OPENIDS)
   parseOpenidList(process.env.ADMIN_OPEN_IDS || '').forEach((id) => allow.add(id))
   if (process.env.ADMIN_OPEN_ID) allow.add(process.env.ADMIN_OPEN_ID.trim())
   if (allow.has(openid)) return
-
-  const { data } = await db.collection('users').where({ openid, role: 'admin' }).limit(1).get()
-  if (data && data.length > 0) return
 
   throw new Error('无管理员权限')
 }

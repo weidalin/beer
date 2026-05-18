@@ -16,8 +16,12 @@ export const useUserStore = defineStore('user', () => {
 
   const isLoggedIn = computed(() => !!user.value)
   const isAdmin = computed(() => {
-    const oid = user.value?.openid
-    if (user.value?.role === 'admin') return true
+    const u = user.value
+    if (!u) return false
+    // 云库 role=customer 时一律非管理员（覆盖 .env 白名单，便于在控制台降权）
+    if (u.role === 'customer') return false
+    if (u.role === 'admin') return true
+    const oid = u.openid
     return !!oid && ADMIN_OPENIDS.has(oid)
   })
 

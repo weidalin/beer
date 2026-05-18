@@ -49,7 +49,7 @@
           class="customer-item"
         >
           <view class="customer-info">
-            <text class="customer-name">{{ customer.nickname }} · {{ customer.phone }}</text>
+            <text class="customer-name">{{ customer.nickname }} · {{ formatContact(customer) }}</text>
             <text class="customer-meta">
               {{ bizTypeLabel(customer.biz_type) }} · {{ relativeTime(customer.created_at) }}
             </text>
@@ -87,6 +87,14 @@ const refreshing = ref(false)
 
 function bizTypeLabel(t: string | null) {
   return formatBizType(t)
+}
+
+function formatContact(c: Customer) {
+  if (c.contact?.trim()) return c.contact.trim()
+  const parts: string[] = []
+  if (c.phone) parts.push(c.phone)
+  if (c.wechat_id) parts.push(`微信:${c.wechat_id}`)
+  return parts.length ? parts.join(' / ') : '未留联系方式'
 }
 
 function relativeTime(t: string) {

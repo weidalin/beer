@@ -1,11 +1,13 @@
-import { db } from '../lib/cloud'
+import { db, callFunction } from '../lib/cloud'
 import { useUserStore } from '../stores/user'
 import type { Customer } from '../types/database'
+
+type SubmitIntentionResult = { ok?: boolean; _id?: string; error?: string }
 
 /** 合作意向表单数据（与产品计划书 3.4 节字段对齐） */
 export interface IntentionForm {
   nickname: string                  // 必填
-  phone: string                     // 必填
+  contact: string                   // 联系方式（电话或微信号，必填）
   address?: string                  // 选填：档口地址
   location?: { latitude: number; longitude: number }  // 选填：GPS
   biz_type?: 'night_stall' | 'open_restaurant' | 'market' | 'other'
@@ -20,44 +22,32 @@ export function useCustomers() {
   const userStore = useUserStore()
 
   /**
-   * 提交合作意向
-   * 已登录时带 openid，未登录时匿名写入（openid = null）
+   * 提交合作意向（走云函数 submitIntention：自动建 customers 集合并写入）
    */
   async function createIntention(form: IntentionForm): Promise<string> {
-    const now = new Date().toISOString()
-    const payload: Record<string, unknown> = {
-      nickname: form.nickname,
-      phone: form.phone,
-      address: form.address ?? null,
+    const payload = {
+      nickname: form.nickname.trim(),
+      contact: form.contact.trim().slice(0, 64),
+      address: form.address?.trim() || null,
       location: form.location ?? null,
       biz_type: form.biz_type ?? null,
       daily_volume: form.daily_volume ?? null,
       interested_plan: form.interested_plan ?? null,
       need_beer_car: form.need_beer_car ?? null,
       delivery_area: form.delivery_area ?? null,
-      notes: form.notes ?? null,
-      openid: userStore.isLoggedIn ? userStore.user?.openid ?? null : null,
-      created_at: now
+      notes: form.notes?.trim() || null,
+      openid: userStore.isLoggedIn ? userStore.user?.openid ?? null : null
     }
 
-    try {
-      const { _id } = await db.collection('customers').add({ data: payload })
-      return _id
-    } catch (e) {
-      console.error('createIntention', e)
-      const raw =
-        e && typeof e === 'object' && 'errMsg' in e
-          ? String((e as { errMsg?: string }).errMsg)
-          : e instanceof Error
-            ? e.message
-            : String(e)
-      if (/502005|DATABASE_COLLECTION_NOT_EXIST|collection not exists|不存在/i.test(raw)) {
-        throw new Error(
-          '提交失败：云数据库中尚未创建 customers 集合。请在云开发控制台上传并执行 init_db 云函数，或手动新建集合。'
-        )
-      }
-      throw e
+    const res = await callFunction<SubmitIntentionResult>('submitIntention', payload)
+
+    if (res?.error) {
+      throw new Error(res.error)
     }
+    if (!res?.ok || !res._id) {
+      throw new Error('提交失败，请稍后重试')
+    }
+    return res._id
   }
   /**
    * C端：查询当前登录用户的意向记录

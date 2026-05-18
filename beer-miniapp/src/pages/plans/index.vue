@@ -187,7 +187,8 @@ onMounted(async () => {
 })
 
 function selectPlan(level: string) {
-  uni.navigateTo({ url: `/pages/booking/index?plan=${level}` })
+  uni.setStorageSync('intention_plan_prefill', level)
+  uni.switchTab({ url: '/pages/booking/index' })
 }
 
 function goBeerCar() {

@@ -160,7 +160,7 @@ function onContact() {
 }
 
 function onBooking() {
-  uni.navigateTo({ url: '/pages/booking/index' })
+  uni.switchTab({ url: '/pages/booking/index' })
 }
 
 onShareAppMessage(() => ({

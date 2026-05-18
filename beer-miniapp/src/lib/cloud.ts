@@ -118,8 +118,8 @@ let _inited = false
 
 /**
  * 解析要传给 wx.cloud.init 的 env。
- * 默认优先 DYNAMIC_CURRENT_ENV（与开发者工具当前选中环境一致），避免 .env 填错导致 INVALID_ENV。
- * 需强制使用 .env 时设置 VITE_CLOUD_ENV_FORCE_EXPLICIT=1 并重新 build。
+ * 已配置 VITE_CLOUD_ENV_ID 时优先使用（与已部署云函数环境一致），避免工具里选中其它环境导致 callFunction 一直等到 timeout。
+ * 未配置 .env 时再回退 DYNAMIC_CURRENT_ENV。
  */
 function resolveCloudEnvId(): string {
   if (typeof wx === 'undefined' || !wx.cloud) return ''
@@ -130,9 +130,52 @@ function resolveCloudEnvId(): string {
     if (dynamic) return dynamic
     return ''
   }
-  if (dynamic) return dynamic
   if (explicit) return explicit
+  if (dynamic) return dynamic
   return ''
+}
+
+/** 客户端云请求超时（毫秒） */
+const CLOUD_REQUEST_MS = 20000
+
+function formatCloudError(e: unknown, label: string): string {
+  const msg =
+    e && typeof e === 'object' && 'errMsg' in e
+      ? String((e as { errMsg?: string }).errMsg)
+      : e instanceof Error
+        ? e.message
+        : String(e)
+  if (/timeout|超时|TIMEOUT/i.test(msg)) {
+    return `${label} 超时：请确认开发者工具「云开发」环境与 .env 的 VITE_CLOUD_ENV_ID（${ENV_ID_FROM_VITE || '未配置'}）一致，并已部署云函数`
+  }
+  return msg || `${label} 失败`
+}
+
+/** 为云开发 Promise 增加客户端超时，避免一直挂起无 Network 记录 */
+export function withCloudTimeout<T>(
+  promise: Promise<T>,
+  label: string,
+  ms = CLOUD_REQUEST_MS
+): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(
+        new Error(
+          `${label} 超时（${ms / 1000}s）：请检查云开发环境与云函数是否已部署到 ${ENV_ID_FROM_VITE || '当前环境'}`
+        )
+      )
+    }, ms)
+    promise.then(
+      (v) => {
+        clearTimeout(timer)
+        resolve(v)
+      },
+      (e) => {
+        clearTimeout(timer)
+        reject(new Error(formatCloudError(e, label)))
+      }
+    )
+  })
 }
 
 /**
@@ -154,6 +197,9 @@ export function initCloud(): void {
   }
   wx.cloud.init({ env, traceUser: true })
   _inited = true
+  if (import.meta.env.DEV) {
+    console.info('[cloud] 已初始化，env =', env)
+  }
 }
 
 function activeCloudEnvId(): string {
@@ -199,12 +245,23 @@ export async function callFunction<T = unknown>(
       '云开发未初始化：未解析到环境 ID。请在 .env 配置 VITE_CLOUD_ENV_ID 并重新编译，或在微信开发者工具云开发中选择环境'
     )
   }
-  const res = await wx.cloud.callFunction({
-    name,
-    data,
-    config: { env }
-  })
-  return res.result as T
+  try {
+    const res = await withCloudTimeout(
+      wx.cloud.callFunction({
+        name,
+        data,
+        config: { env }
+      }),
+      `云函数 ${name}`
+    )
+    return res.result as T
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e)
+    if (/FUNCTION_NOT_FOUND|FUNCTION_NOT_EXIST|could not find/i.test(msg)) {
+      throw new Error(`云函数 ${name} 未找到，请在开发者工具上传并部署该云函数（云端安装依赖）`)
+    }
+    throw e instanceof Error ? e : new Error(msg)
+  }
 }
 
 /**

@@ -250,8 +250,9 @@ exports.main = async (event = {}) => {
  *             |   （若需小程序端管理员改任意商品，需单独设计 write 条件或走云函数。）
  *  plans      | 所有用户可读
  *             |   { "read": true, "write": false }
- *  customers  | 所有用户可写（支持游客提交），创建者可读；首次部署前须建集合
- *             |   { "read": "doc.openid == auth.openid", "write": true }
+ *  customers  | 合作意向：小程序走云函数 submitIntention 写入（会自动 createCollection）
+ *             |   读：本人记录 { "read": "doc.openid == auth.openid || !doc.openid", "write": false }
+ *             |   或管理员后台读全开需另配；写建议仅云函数，客户端 write: false
  *  users      | 创建者可读写
  *             |   { "read": "doc.openid == auth.openid",
  *             |     "write": "doc.openid == auth.openid" }

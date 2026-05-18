@@ -9,7 +9,7 @@ export function useUpload() {
    */
   async function uploadImage(
     filePath: string,
-    folder: 'products' | 'covers' = 'products'
+    folder: 'products' | 'covers' | 'avatars' = 'products'
   ): Promise<string> {
     const ext = filePath.split('.').pop()?.toLowerCase() || 'jpg'
     const cloudPath = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
@@ -21,7 +21,7 @@ export function useUpload() {
    */
   async function uploadImages(
     filePaths: string[],
-    folder: 'products' | 'covers' = 'products'
+    folder: 'products' | 'covers' | 'avatars' = 'products'
   ): Promise<string[]> {
     return Promise.all(filePaths.map(p => uploadImage(p, folder)))
   }

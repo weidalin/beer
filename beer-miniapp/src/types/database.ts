@@ -12,6 +12,10 @@ export interface User {
   openid: string
   nickname: string | null
   avatar_url: string | null
+  /** 用户微信号（需用户在资料页填写，微信不提供读取接口） */
+  wechat_id: string | null
+  /** 手机号（getPhoneNumber 授权后由云函数解密写入） */
+  phone: string | null
   role: 'customer' | 'admin'
   created_at: string
 }
@@ -39,7 +43,9 @@ export interface Customer {
   _id: string
   openid: string | null          // 已登录时写入，否则为 null
   nickname: string               // 昵称（必填）
-  phone: string                  // 联系电话（必填）
+  contact: string | null         // 联系方式（电话或微信号等）
+  phone: string | null           // 旧数据兼容
+  wechat_id: string | null       // 旧数据兼容
   address: string | null         // 档口地址（选填）
   location: { latitude: number; longitude: number } | null  // GPS 坐标（选填）
   biz_type: 'night_stall' | 'open_restaurant' | 'market' | 'other' | null

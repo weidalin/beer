@@ -11,7 +11,7 @@ import os from 'os'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const cfRoot = __dirname
 const outDir = join(cfRoot, 'dist-zips')
-const names = ['wxLogin', 'init_db', 'updateProfile', 'productAdmin']
+const names = ['wxLogin', 'init_db', 'updateProfile', 'productAdmin', 'submitIntention']
 
 fs.mkdirSync(outDir, { recursive: true })
 

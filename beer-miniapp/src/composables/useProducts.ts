@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import { db, callFunction } from '../lib/cloud'
+import { db, callFunction, withCloudTimeout } from '../lib/cloud'
 import type { Product } from '../types/database'
 import type { ProductFilter } from '../types/api'
 
@@ -34,7 +34,7 @@ export function useProducts() {
         .skip(skip)
         .limit(pageSize)
 
-      const { data } = await query.get()
+      const { data } = await withCloudTimeout(query.get(), '读取产品列表')
       const result = (data || []) as unknown as Product[]
 
       hasMore.value = result.length >= pageSize

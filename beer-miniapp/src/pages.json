@@ -118,7 +118,7 @@
         "pagePath": "pages/booking/index",
         "iconPath": "static/icons/booking.png",
         "selectedIconPath": "static/icons/booking-active.png",
-        "text": "预约"
+        "text": "意向"
       },
       {
         "pagePath": "pages/profile/index",
