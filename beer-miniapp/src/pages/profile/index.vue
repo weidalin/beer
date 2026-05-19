@@ -385,7 +385,7 @@ function goIntentions() {
     uni.showToast({ title: '请先登录', icon: 'none' })
     return
   }
-  uni.switchTab({ url: '/pages/booking/index' })
+  uni.navigateTo({ url: '/pages/my-intentions/index' })
 }
 
 function goAbout() {

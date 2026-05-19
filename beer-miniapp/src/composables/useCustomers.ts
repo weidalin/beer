@@ -25,9 +25,19 @@ export function useCustomers() {
    * 提交合作意向（走云函数 submitIntention：自动建 customers 集合并写入）
    */
   async function createIntention(form: IntentionForm): Promise<string> {
+    const contact =
+      form.contact.trim() ||
+      userStore.user?.phone?.trim() ||
+      userStore.user?.wechat_id?.trim() ||
+      ''
+
+    if (!contact) {
+      throw new Error('请填写联系电话或微信号（至少一项）')
+    }
+
     const payload = {
       nickname: form.nickname.trim(),
-      contact: form.contact.trim().slice(0, 64),
+      contact: contact.slice(0, 64),
       address: form.address?.trim() || null,
       location: form.location ?? null,
       biz_type: form.biz_type ?? null,
@@ -66,16 +76,15 @@ export function useCustomers() {
   }
 
   /**
-   * B端：获取所有意向客户（管理员专用）
+   * B端：获取所有意向客户（管理员专用，走云函数绕过客户端安全规则）
    */
   async function fetchAllCustomers(): Promise<Customer[]> {
-    const { data } = await db
-      .collection('customers')
-      .orderBy('created_at', 'desc')
-      .limit(200)
-      .get()
-
-    return (data || []) as unknown as Customer[]
+    const res = await callFunction<{ ok?: boolean; data?: Customer[]; error?: string }>(
+      'customerAdmin',
+      { action: 'list' }
+    )
+    if (res?.error) throw new Error(res.error)
+    return res?.data ?? []
   }
 
   /**
@@ -100,10 +109,31 @@ export function useCustomers() {
     }
   }
 
+  /** B端：标星/取消标星 */
+  async function starCustomer(id: string, starred: boolean): Promise<void> {
+    const res = await callFunction<{ ok?: boolean; error?: string }>('customerAdmin', {
+      action: 'star',
+      id,
+      starred
+    })
+    if (res?.error) throw new Error(res.error)
+  }
+
+  /** B端：删除意向记录 */
+  async function deleteCustomer(id: string): Promise<void> {
+    const res = await callFunction<{ ok?: boolean; error?: string }>('customerAdmin', {
+      action: 'delete',
+      id
+    })
+    if (res?.error) throw new Error(res.error)
+  }
+
   return {
     createIntention,
     fetchMyIntentions,
     fetchAllCustomers,
-    getTodayNewCount
+    getTodayNewCount,
+    starCustomer,
+    deleteCustomer
   }
 }

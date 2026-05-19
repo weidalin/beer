@@ -10,7 +10,7 @@ import { fileURLToPath } from 'url'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const repoCfRoot = join(__dirname, '..', '..', 'cloudfunctions')
 
-const FUNCTION_NAMES = ['wxLogin', 'init_db', 'updateProfile', 'productAdmin', 'submitIntention']
+const FUNCTION_NAMES = ['wxLogin', 'init_db', 'updateProfile', 'productAdmin', 'submitIntention', 'customerAdmin']
 
 function installOne(name) {
   const dir = join(repoCfRoot, name)

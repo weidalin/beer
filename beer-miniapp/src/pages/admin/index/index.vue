@@ -37,6 +37,7 @@
       <view class="section-card card" style="margin: 0 24rpx 48rpx;">
         <view class="section-header-row">
           <text class="section-title">最新合作意向</text>
+          <text class="view-all" @tap="goCustomerList">查看全部 ›</text>
         </view>
 
         <view v-if="latestCustomers.length === 0" class="empty-state-sm">
@@ -47,13 +48,19 @@
           v-for="customer in latestCustomers"
           :key="customer._id"
           class="customer-item"
+          @tap="goCustomerDetail(customer._id)"
         >
           <view class="customer-info">
-            <text class="customer-name">{{ customer.nickname }} · {{ formatContact(customer) }}</text>
+            <view class="customer-name-row">
+              <text class="customer-name">{{ customer.nickname }}</text>
+              <text v-if="customer.is_starred" class="starred-dot">⭐</text>
+            </view>
+            <text class="customer-contact">{{ formatContact(customer) }}</text>
             <text class="customer-meta">
               {{ bizTypeLabel(customer.biz_type) }} · {{ relativeTime(customer.created_at) }}
             </text>
           </view>
+          <text class="customer-arrow">›</text>
         </view>
       </view>
     </scroll-view>
@@ -133,6 +140,14 @@ function goProducts() {
   uni.navigateTo({ url: '/pages/admin/products/list' })
 }
 
+function goCustomerList() {
+  uni.navigateTo({ url: '/pages/admin/customers/list' })
+}
+
+function goCustomerDetail(id: string) {
+  uni.navigateTo({ url: `/pages/admin/customers/detail?id=${id}` })
+}
+
 function goHome() {
   uni.switchTab({ url: '/pages/index/index' })
 }
@@ -209,6 +224,11 @@ function goHome() {
       font-weight: 700;
       color: $color-text-primary;
     }
+
+    .view-all {
+      font-size: $font-sm;
+      color: $color-primary;
+    }
   }
 
   .customer-item {
@@ -220,15 +240,27 @@ function goHome() {
 
     &:last-child { border-bottom: none; }
 
-    .customer-info {
-      flex: 1;
+    .customer-info { flex: 1; }
+
+    .customer-name-row {
+      display: flex;
+      align-items: center;
+      gap: $spacing-xs;
     }
 
     .customer-name {
-      display: block;
       font-size: $font-base;
       color: $color-text-primary;
       font-weight: 600;
+    }
+
+    .starred-dot { font-size: $font-sm; }
+
+    .customer-contact {
+      display: block;
+      font-size: $font-sm;
+      color: $color-text-secondary;
+      margin-top: 2rpx;
     }
 
     .customer-meta {
@@ -236,6 +268,12 @@ function goHome() {
       font-size: $font-sm;
       color: $color-text-tertiary;
       margin-top: 2rpx;
+    }
+
+    .customer-arrow {
+      color: $color-text-placeholder;
+      font-size: $font-xl;
+      padding-left: $spacing-sm;
     }
   }
 }

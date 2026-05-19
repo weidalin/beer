@@ -1,0 +1,9 @@
+{
+  "name": "customerAdmin",
+  "version": "1.0.0",
+  "description": "管理员操作 customers 集合（标星/删除）",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

@@ -15,7 +15,7 @@ const distWx = join(root, 'dist', 'build', 'mp-weixin')
 const destRoot = join(distWx, 'cloudfunctions')
 /** 与 beer-miniapp 同级的仓库根目录下的 cloudfunctions */
 const repoCfRoot = join(root, '..', 'cloudfunctions')
-const FUNCTION_NAMES = ['wxLogin', 'init_db', 'updateProfile', 'productAdmin', 'submitIntention']
+const FUNCTION_NAMES = ['wxLogin', 'init_db', 'updateProfile', 'productAdmin', 'submitIntention', 'customerAdmin']
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 

@@ -54,7 +54,10 @@ export interface Customer {
   need_beer_car: 'no' | 'buy' | 'rent' | null
   delivery_area: 'prd' | 'other' | null
   notes: string | null
+  /** 管理员标星（重要客户） */
+  is_starred: boolean | null
   created_at: string
+  updated_at?: string
 }
 
 /** plans 集合（合作方案） */

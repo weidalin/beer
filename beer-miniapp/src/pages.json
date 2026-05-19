@@ -88,6 +88,30 @@
         "navigationBarBackgroundColor": "#3E1C00",
         "navigationBarTextStyle": "white"
       }
+    },
+    {
+      "path": "pages/admin/customers/list",
+      "style": {
+        "navigationBarTitleText": "合作意向列表",
+        "navigationBarBackgroundColor": "#3E1C00",
+        "navigationBarTextStyle": "white"
+      }
+    },
+    {
+      "path": "pages/admin/customers/detail",
+      "style": {
+        "navigationBarTitleText": "意向详情",
+        "navigationBarBackgroundColor": "#3E1C00",
+        "navigationBarTextStyle": "white"
+      }
+    },
+    {
+      "path": "pages/my-intentions/index",
+      "style": {
+        "navigationBarTitleText": "我的合作意向",
+        "navigationBarBackgroundColor": "#3E1C00",
+        "navigationBarTextStyle": "white"
+      }
     }
   ],
   "tabBar": {

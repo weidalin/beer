@@ -22,13 +22,26 @@ exports.main = async (event = {}) => {
   const { OPENID } = cloud.getWXContext()
 
   const nickname = event.nickname != null ? String(event.nickname).trim() : ''
-  const contact =
+  let contact =
     event.contact != null
       ? String(event.contact).trim().slice(0, 64)
       : ''
 
+  // 表单未填联系方式时，从 users 资料补全（登录时已授权的手机号/微信号）
+  if (!contact && OPENID) {
+    try {
+      const { data: users } = await db.collection('users').where({ openid: OPENID }).limit(1).get()
+      const u = users && users[0]
+      if (u) {
+        contact = String(u.phone || u.wechat_id || '').trim().slice(0, 64)
+      }
+    } catch (e) {
+      console.warn('submitIntention load user contact', e)
+    }
+  }
+
   if (!nickname) return { error: '请填写昵称' }
-  if (!contact) return { error: '请填写联系方式' }
+  if (!contact) return { error: '请填写联系电话或微信号（至少一项）' }
 
   const now = new Date().toISOString()
   const payload = {

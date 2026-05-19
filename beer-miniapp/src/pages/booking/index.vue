@@ -162,8 +162,12 @@
 import { ref, reactive } from 'vue'
 import { onLoad, onShow } from '@dcloudio/uni-app'
 import { useCustomers, type IntentionForm } from '../../composables/useCustomers'
+import { useUserStore } from '../../stores/user'
+import { useAuth } from '../../composables/useAuth'
 
 const { createIntention } = useCustomers()
+const userStore = useUserStore()
+const { syncUserFromCloud } = useAuth()
 
 const submitting = ref(false)
 const contactError = ref('')
@@ -196,7 +200,28 @@ onShow(() => {
   } catch {
     /* ignore */
   }
+  if (userStore.isLoggedIn) {
+    void syncUserFromCloud().then(() => prefillFromUser())
+  } else {
+    prefillFromUser()
+  }
 })
+
+/** 登录资料中的昵称、手机号/微信号带入表单（仅填空项） */
+function prefillFromUser() {
+  const u = userStore.user
+  if (!u) return
+  const nick = u.nickname?.trim()
+  if (!form.nickname.trim() && nick && nick !== '微信用户') {
+    form.nickname = nick
+  }
+  if (!form.contact.trim()) {
+    const phone = u.phone?.trim()
+    const wechat = u.wechat_id?.trim()
+    if (phone) form.contact = phone
+    else if (wechat) form.contact = wechat
+  }
+}
 
 const bizTypeOptions = [
   { label: '宵夜档', value: 'night_stall' },
@@ -235,6 +260,13 @@ function getLocation() {
   })
 }
 
+function resolveContact(): string {
+  const typed = form.contact.trim()
+  if (typed) return typed
+  const u = userStore.user
+  return u?.phone?.trim() || u?.wechat_id?.trim() || ''
+}
+
 function validate(): boolean {
   contactError.value = ''
   if (!form.nickname.trim()) {
@@ -242,8 +274,9 @@ function validate(): boolean {
     return false
   }
 
-  if (!form.contact.trim()) {
-    contactError.value = '请填写联系方式'
+  if (!resolveContact()) {
+    contactError.value = '请填写手机号或微信号，或在「我的」中授权手机号'
+    uni.showToast({ title: '请填写联系方式', icon: 'none' })
     return false
   }
   return true
@@ -272,10 +305,15 @@ function resetForm() {
 async function submit() {
   if (!validate()) return
 
+  const contact = resolveContact()
+  if (contact && !form.contact.trim()) {
+    form.contact = contact
+  }
+
   submitting.value = true
   uni.showLoading({ title: '提交中...', mask: true })
   try {
-    await createIntention(form)
+    await createIntention({ ...form, contact })
     uni.hideLoading()
     uni.showToast({ title: '已提交，我们会尽快联系您', icon: 'success', duration: 2000 })
     resetForm()
