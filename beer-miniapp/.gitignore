@@ -4,3 +4,5 @@ dist/
 unpackage/
 *.log
 .DS_Store
+
+docs/product_images/

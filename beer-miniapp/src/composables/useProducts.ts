@@ -35,7 +35,8 @@ export function useProducts() {
         .limit(pageSize)
 
       const { data } = await withCloudTimeout(query.get(), '读取产品列表')
-      const result = (data || []) as unknown as Product[]
+      // 展开为普通对象，避免 CloudBase 文档代理在小程序渲染层序列化异常
+      const result = ((data || []) as unknown as Product[]).map(item => ({ ...item }))
 
       hasMore.value = result.length >= pageSize
       return result
@@ -48,7 +49,8 @@ export function useProducts() {
   async function fetchProductDetail(id: string): Promise<Product | null> {
     try {
       const { data } = await db.collection('products').doc(id).get()
-      return (data as unknown as Product) || null
+      if (!data) return null
+      return { ...(data as unknown as Product) }
     } catch {
       return null
     }
@@ -66,7 +68,7 @@ export function useProducts() {
       .limit(100)
       .get()
 
-    return (data || []) as unknown as Product[]
+    return ((data || []) as unknown as Product[]).map(item => ({ ...item }))
   }
 
   /** B端：新增产品（走云函数，绕过「仅创建者可写」） */

@@ -59,6 +59,7 @@
             >
               {{ product.is_active ? '下架' : '上架' }}
             </text>
+            <text class="action-btn action-btn--danger" @tap.stop="onDelete(product)">删除</text>
           </view>
         </view>
       </view>
@@ -77,7 +78,7 @@ import { onShow } from '@dcloudio/uni-app'
 import { useProducts } from '../../../composables/useProducts'
 import type { Product } from '../../../types/database'
 
-const { fetchAllProducts, toggleProductActive } = useProducts()
+const { fetchAllProducts, toggleProductActive, deleteProduct } = useProducts()
 
 type FilterValue = 'all' | 'active' | 'inactive'
 
@@ -136,6 +137,38 @@ async function toggleActive(product: Product) {
     })
   } catch {
     uni.showToast({ title: '操作失败', icon: 'none' })
+  }
+}
+
+async function onDelete(product: Product) {
+  const confirmed = await new Promise<boolean>((resolve) => {
+    uni.showModal({
+      title: '确认删除',
+      content: `确定要删除「${product.name}」吗？删除后无法恢复。`,
+      confirmText: '删除',
+      confirmColor: '#E84C3D',
+      success: (res) => resolve(!!res.confirm),
+      fail: () => resolve(false)
+    })
+  })
+
+  if (!confirmed) return
+
+  uni.showLoading({ title: '删除中...', mask: true })
+  try {
+    await deleteProduct(product._id)
+    products.value = products.value.filter(p => p._id !== product._id)
+    selected.value = selected.value.filter(id => id !== product._id)
+    uni.hideLoading()
+    uni.showToast({ title: '已删除', icon: 'success' })
+  } catch (e) {
+    uni.hideLoading()
+    uni.showModal({
+      title: '删除失败',
+      content: e instanceof Error ? e.message : '请重试',
+      showCancel: false,
+      confirmText: '知道了'
+    })
   }
 }
 
@@ -298,6 +331,10 @@ onShow(() => {
 
       &--warn { color: $color-danger; }
       &--success { color: $color-success; }
+      &--danger {
+        color: $color-text-white;
+        background: $color-danger;
+      }
     }
   }
 }

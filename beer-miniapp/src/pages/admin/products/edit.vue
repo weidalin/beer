@@ -154,11 +154,11 @@
     </scroll-view>
 
     <!-- 底部保存：用 view 替代原生 button，避免抢焦点/弹出键盘 -->
-    <view class="bottom-bar" @touchstart.stop="blurKeyboard">
+    <view class="bottom-bar">
       <view
         class="btn-primary save-btn"
         :class="{ 'save-btn--disabled': saving }"
-        @tap.stop="onSaveTap"
+        @tap="onSaveTap"
       >
         {{ saving ? '保存中...' : (isEdit ? '保存修改' : '创建产品') }}
       </view>
@@ -167,7 +167,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import ImageUploader from '../../../components/ImageUploader/index.vue'
 import { useProducts } from '../../../composables/useProducts'
@@ -285,13 +285,14 @@ async function save() {
       uni.navigateBack()
     }, 1200)
   } catch (e) {
-    const title =
-      e instanceof Error
-        ? e.message.includes('无管理员')
-          ? `${e.message}，请部署 productAdmin 云函数`
-          : e.message
-        : '保存失败，请重试'
-    uni.showToast({ title, icon: 'none', duration: 4000 })
+    const msg =
+      e instanceof Error ? e.message : '保存失败，请重试'
+    uni.showModal({
+      title: '保存失败',
+      content: msg,
+      showCancel: false,
+      confirmText: '知道了'
+    })
   } finally {
     saving.value = false
   }

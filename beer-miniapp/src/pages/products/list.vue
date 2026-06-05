@@ -18,7 +18,6 @@
 
     <!-- 管理员：在本页进入产品增删改（图片走云存储，见后台编辑页） -->
     <view v-if="userStore.isAdmin" class="admin-strip">
-      <text class="admin-strip-label">管理</text>
       <view class="admin-strip-btns">
         <text class="admin-strip-btn" @tap="goAdminProductList">列表 / 上下架</text>
         <text class="admin-strip-btn admin-strip-btn--primary" @tap="goAdminProductNew">新增产品</text>
@@ -327,7 +326,7 @@ function loadMore() {
 // 产品网格
 .product-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: $spacing-sm;
   padding: $spacing-sm;
 }
@@ -347,7 +346,7 @@ function loadMore() {
 // 骨架屏
 .skeleton-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: $spacing-sm;
   padding: $spacing-sm;
 

@@ -37,7 +37,7 @@
         </view>
       </view>
 
-      <!-- 快捷入口 2×2 宫格 -->
+      <!-- 快捷入口 横排三项 -->
       <view class="quick-entry">
         <view
           class="entry-item"
@@ -161,19 +161,14 @@ const quickEntries = [
     action: () => uni.switchTab({ url: '/pages/plans/index' })
   },
   {
-    icon: '📅',
-    label: '立即预约',
+    icon: '📝',
+    label: '提交合作意向',
     action: () => uni.switchTab({ url: '/pages/booking/index' })
   },
   {
     icon: '📞',
     label: '联系我们',
     action: () => appStore.callPhone()
-  },
-  {
-    icon: '📋',
-    label: '提交意向',
-    action: () => uni.switchTab({ url: '/pages/booking/index' })
   }
 ]
 
@@ -325,17 +320,18 @@ onShareTimeline(() => ({
 // 快捷入口
 .quick-entry {
   margin: 0 $spacing-md $spacing-md;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
   gap: $spacing-sm;
 
   .entry-item {
+    flex: 1;
     background: $color-bg-card;
     border-radius: $radius-md;
-    padding: $spacing-md;
+    padding: $spacing-md $spacing-xs;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: $spacing-sm;
+    gap: $spacing-xs;
     box-shadow: $shadow-sm;
 
     .entry-icon-wrap {
@@ -353,9 +349,10 @@ onShareTimeline(() => ({
     }
 
     .entry-label {
-      font-size: $font-base;
+      font-size: $font-sm;
       font-weight: 600;
       color: $color-text-primary;
+      text-align: center;
     }
   }
 }

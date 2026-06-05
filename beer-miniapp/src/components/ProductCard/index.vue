@@ -3,9 +3,10 @@
     <view class="card-image-wrap">
       <image
         class="card-image"
-        :src="product.cover_image || '/static/images/placeholder.png'"
+        :src="imgSrc"
         mode="aspectFill"
         lazy-load
+        @error="onImgError"
       />
       <!-- 标签 -->
       <view class="card-tags" v-if="product.tags?.length">
@@ -22,7 +23,7 @@
       <text class="card-spec" v-if="product.spec">{{ product.spec }}</text>
       <view class="card-footer">
         <text class="card-price">{{ product.price_range || '面议' }}</text>
-        <text class="card-type" v-if="product.category !== 'beer'">
+        <text class="card-type" v-if="isEquipment">
           {{ supplyTypeLabel }}
         </text>
       </view>
@@ -31,12 +32,20 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import type { Product } from '../../types/database'
 
 const props = defineProps<{
   product: Product
 }>()
+
+const imgSrc = ref(props.product.cover_image || '/static/images/placeholder.png')
+
+function onImgError() {
+  imgSrc.value = '/static/images/placeholder.png'
+}
+
+const isEquipment = computed(() => props.product.category !== 'beer')
 
 const tagLabels: Record<string, string> = {
   hot: '热销',
